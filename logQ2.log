@@ -1,0 +1,6 @@
+[2024-10-25 00:53:17] Erro ao decodificar a resposta JSON do login.
+[2024-10-25 00:53:17] Erro ao fazer login na API.
+[2024-10-25 00:53:17] Erro ao buscar notificações da API: 
+[2024-10-25 00:53:17] Erro ao buscar notificações da API. Notificações: 
+[2024-10-28 23:55:55] Erro ao conectar ao MySQL: SQLSTATE[HY000] [1045] Access denied for user 'crede'@'localhost' (using password: YES)
+[2024-10-29 06:05:31] Erro ao conectar ao MySQL: SQLSTATE[HY000] [1045] Access denied for user 'crede'@'localhost' (using password: YES)
