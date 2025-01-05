@@ -20,6 +20,7 @@ class DashboardModel extends MainModel
 
 	public function getDadosDashboard($idParceiro = 0)
 	{
+		var_dump($idParceiro);
 		// Total de Impressões
 		$queryTotalImpressao = $this->db->query("SELECT COUNT(*) as total FROM tblImpressoes WHERE idParceiro = ?", array($idParceiro));
 		$totalImpressao = $queryTotalImpressao->fetch()['total'];
