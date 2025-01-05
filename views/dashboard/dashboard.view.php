@@ -1,9 +1,7 @@
 <?php if (!defined('ABSPATH')) exit;
 
-
-if( !isset($_SESSION['idParceiroHash']) ) {
-    $idParceiro = 0;
-}else{
+$idParceiro = 0;
+if (isset($_SESSION['idParceiroHash'])) {
     $hash = $_SESSION['idParceiroHash'];
     $idParceiro = decryptHash($hash);
 }
@@ -117,7 +115,7 @@ $dadosDashboard = $modelo->getDadosDashboard($idParceiro);
 </div>
 
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
         // Dados para o gráfico de Usuários
         const usuarios = <?php echo json_encode($dadosDashboard['usuarios']['labels']); ?>;
         const totalUsuarios = <?php echo json_encode($dadosDashboard['usuarios']['data']); ?>;
