@@ -1,5 +1,7 @@
 <?php if (!defined('ABSPATH')) exit;
-$relatorio = $modelo->getRelatorioPorEstacao();
+$hash = $_SESSION['idParceiroHash'];
+$idParceiro = decryptHash($hash);
+$relatorio = $modelo->getRelatorioPorEstacao($idParceiro);
 ?>
 
 <div class="content-wrapper">

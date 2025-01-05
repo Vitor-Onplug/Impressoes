@@ -17,7 +17,7 @@ class ImpressoesModel extends MainModel
         $this->userdata = $this->controller->userdata;
     }
 
-    function getImpressoes($filtros = null, $idUsuario = null)
+    function getImpressoes($filtros = null)
     {
         $where = "1=1";
         $orderby = "";
@@ -28,6 +28,10 @@ class ImpressoesModel extends MainModel
             $where .= " OR (`tblImpressoes`.`nomeArquivo` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
             $where .= " OR (`tblImpressoes`.`cliente` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
 
+        }
+
+        if(!empty($filtros["idParceiro"])) {
+            $where .= " AND `tblImpressoes`.`idParceiro` = " . $filtros["idParceiro"];
         }
 
 

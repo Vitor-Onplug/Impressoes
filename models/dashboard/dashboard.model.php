@@ -18,18 +18,18 @@ class DashboardModel extends MainModel
 		$this->userdata = $this->controller->userdata;
 	}
 
-	public function getDadosDashboard()
+	public function getDadosDashboard($idParceiro = null)
 	{
 		// Total de Impressões
-		$queryTotalImpressao = $this->db->query("SELECT COUNT(*) as total FROM tblImpressoes");
+		$queryTotalImpressao = $this->db->query("SELECT COUNT(*) as total FROM tblImpressoes WHERE idParceiro = ?", array($idParceiro));
 		$totalImpressao = $queryTotalImpressao->fetch()['total'];
 
 		// Total de Usuários
-		$queryTotalUsuarios = $this->db->query("SELECT COUNT(DISTINCT nomeUsuario) as total FROM tblImpressoes");
+		$queryTotalUsuarios = $this->db->query("SELECT COUNT(DISTINCT nomeUsuario) as total FROM tblImpressoes WHERE idParceiro = ?", array($idParceiro));
 		$totalUsuarios = $queryTotalUsuarios->fetch()['total'];
 
 		// Total de Impressoras
-		$queryTotalImpressoras = $this->db->query("SELECT COUNT(DISTINCT nomeImpressora) as total FROM tblImpressoes");
+		$queryTotalImpressoras = $this->db->query("SELECT COUNT(DISTINCT nomeImpressora) as total FROM tblImpressoes WHERE idParceiro = ?", array($idParceiro));
 		$totalImpressoras = $queryTotalImpressoras->fetch()['total'];
 
 		// Impressões no Mês Atual
@@ -37,13 +37,17 @@ class DashboardModel extends MainModel
         SELECT COUNT(*) as total FROM tblImpressoes 
         WHERE MONTH(dataCadastro) = MONTH(CURRENT_DATE()) 
         AND YEAR(dataCadastro) = YEAR(CURRENT_DATE())
-    ");
+		AND idParceiro = ?", array($idParceiro));
+
 		$impressaoMes = $queryImpressaoMes->fetch()['total'];
+
+		$where = " WHERE tblImpressoes.idParceiro = " . $idParceiro;
 
 		// Impressões por Usuário
 		$queryUsuarios = $this->db->query("
         SELECT nomeUsuario as usuario, COUNT(*) as total 
         FROM tblImpressoes 
+		$where
         GROUP BY nomeUsuario 
         ORDER BY total DESC
         LIMIT 10
@@ -54,6 +58,7 @@ class DashboardModel extends MainModel
 		$queryImpressoras = $this->db->query("
         SELECT nomeImpressora as impressora, COUNT(*) as total 
         FROM tblImpressoes 
+		$where
         GROUP BY nomeImpressora 
         ORDER BY total DESC
         LIMIT 10

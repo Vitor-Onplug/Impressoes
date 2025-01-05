@@ -29,14 +29,18 @@ $(function() {
 				"sSortDescending": ": Ordenar colunas de forma descendente"
 			}
 		},
-		"responsive": true,
+		"responsive": true, // Torna a tabela responsiva
 		"paging": true,
 		"lengthChange": false,
 		"searching": true,
 		"ordering": true,
 		"info": true,
-		"autoWidth": false,
+		"autoWidth": true,
 		"pageLength": 20, 
+
+		"dom": "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+           "<'row'<'col-sm-12'tr>>" +
+           "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
 		
 		"columnDefs": [{
 			"targets": 'sorter-false',

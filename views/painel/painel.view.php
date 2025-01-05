@@ -37,6 +37,28 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 	<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/toastr/toastr.min.css">
 </head>
 
+<style>
+	.dataTables_wrapper .dataTables_filter {
+		float: right;
+		text-align: right;
+		padding: 10px 0;
+	}
+
+	.dataTables_wrapper .dataTables_filter input {
+		margin-left: 0.5em;
+		display: inline-block;
+		width: auto;
+	}
+
+	.card-body {
+		padding: 1.25rem;
+	}
+
+	.dataTable {
+		width: 100% !important;
+	}
+</style>
+
 <body class="hold-transition sidebar-mini">
 	<div class="wrapper">
 		<nav class="main-header navbar navbar-expand navbar-white navbar-light">
@@ -46,6 +68,40 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 				</li>
 			</ul>
 
+			<!-- SELECT PARA SELECIONAR UM PARCEIRO -->
+			<?php
+			$idParceiroHash = isset($_SESSION['idParceiroHash']) ? $_SESSION['idParceiroHash'] : null;
+			if ($idParceiroHash !== null) {
+				$idParceiro = decryptHash($idParceiroHash);
+				$modeloParceiro = $this->load_model('parceiros/parceiros');
+				$parceiros = $modeloParceiro->getParceiros();
+			?>
+				<div class="form-inline mx-2">
+					<label class="mr-2" for="selectParceiro">Parceiro Atual:</label>
+					<select class="form-control select2-search" id="selectParceiro" name="selectParceiro" style="width: 250px;">
+						<?php foreach ($parceiros as $parceiro) : ?>
+							<option value="<?= $parceiro['id'] ?>" <?= $parceiro['id'] == $idParceiro ? 'selected' : '' ?>>
+								<?= $parceiro['nomeParceiro'] ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+			<?php  } else { ?>
+				<div class="form-inline mx-2">
+					<label class="mr-2" for="selectParceiro">Selecione um Parceiro:</label>
+					<select class="form-control select2-search" id="selectParceiro" name="selectParceiro" style="width: 250px;">
+						<option value="" disabled selected>Nenhum parceiro selecionado</option>
+						<?php
+						$modeloParceiro = $this->load_model('parceiros/parceiros');
+						$parceiros = $modeloParceiro->getParceiros();
+						foreach ($parceiros as $parceiro) : ?>
+							<option value="<?= $parceiro['id'] ?>">
+								<?= $parceiro['nomeParceiro'] ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+			<?php } ?>
 
 			<ul class="navbar-nav ml-auto">
 				<li class="nav-item">
@@ -89,111 +145,140 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 
 				<nav class="mt-2">
 					<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-						<li class="nav-item"><a href="./" class="nav-link <?php if (!isset($activePage[0])) {
-																				echo 'active';
-																			} ?>"><i class="nav-icon fas fa-tachometer-alt"></i>
-								<p>Dashboard</p>
-							</a></li>
 
-						<!-- Impressoras -->
-						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras') {
-												echo 'menu-open';
-											} ?>">
-							<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras') {
-															echo 'active';
-														} ?>"><i class="fa-solid fa-laptop-file"></i>
-								<p>Impressoras <i class="right fas fa-angle-left"></i></p>
-							</a>
-							<ul class="nav nav-treeview">
-								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/impressoras" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras' && !isset($activePage[2])) {
+						<?php
+						$modeloParceiro = $this->load_model('parceiros/parceiros');
+						$idParceiroHash = isset($_SESSION['idParceiroHash']) ? $_SESSION['idParceiroHash'] : null;
+						if ($idParceiroHash !== null) {
+							$idParceiro = decryptHash($idParceiroHash);
+							$parceiro = $modeloParceiro->getParceiro($idParceiro);
+						?>
+
+							<li class="nav-item"><a href="./" class="nav-link <?php if (!isset($activePage[0])) {
+																					echo 'active';
+																				} ?>"><i class="nav-icon fas fa-tachometer-alt"></i>
+									<p>Dashboard</p>
+								</a></li>
+
+							<!-- Impressoras -->
+							<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras') {
+													echo 'menu-open';
+												} ?>">
+								<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras') {
+																echo 'active';
+															} ?>"><i class="nav-icon fa-solid fa-laptop-file"></i>
+									<p>Impressoras <i class="right fas fa-angle-left"></i></p>
+								</a>
+								<ul class="nav nav-treeview ml-3">
+									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/impressoras" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras' && !isset($activePage[2])) {
+																																echo 'active';
+																															} ?>"><i class="far fa-calendar nav-icon"></i>
+											<p>Impressoras</p>
+										</a></li>
+									<?php //if ($this->check_permissions('impressora-adicionar', $this->userdata['modulo'])) { 
+									?>
+									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/impressoras/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras' && (isset($activePage[2]) && $activePage[2] == 'adicionar')) {
+																																				echo 'active';
+																																			} ?>"><i class="far fa-calendar-plus nav-icon"></i>
+											<p>Adicionar</p>
+										</a></li>
+									<?php // } 
+									?>
+								</ul>
+							</li>
+							<!-- Fim Impressoras -->
+
+							<!-- Impressoes -->
+							<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'impressoes') {
+													echo 'menu-open';
+												} ?>">
+								<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoes') {
+																echo 'active';
+															} ?>"><i class="nav-icon fas fa-print"></i>
+									<p>Impressões <i class="right fas fa-angle-left"></i></p>
+								</a>
+								<ul class="nav nav-treeview ml-3">
+									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/impressoes" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoes' && !isset($activePage[2])) {
+																																echo 'active';
+																															} ?>"><i class="far fa-calendar nav-icon"></i>
+											<p>Impressões</p>
+										</a></li>
+								</ul>
+							</li>
+							<!-- Fim Impressoes -->
+
+							<!-- Relatórios -->
+							<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios') {
+													echo 'menu-open';
+												} ?>">
+								<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios') {
+																echo 'active';
+															} ?>"><i class="nav-icon fas fa-chart-pie"></i>
+									<p>Relatórios <i class="right fas fa-angle-left"></i></p>
+								</a>
+								<ul class="nav nav-treeview ml-3">
+									<li class="nav-item pl-2">
+										<a href="<?php echo HOME_URI; ?>/relatorios/index/porUsuario" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porUsuario') {
+																															echo 'active';
+																														} ?>">
+											<i class="fa-solid fa-user nav-icon"></i>
+											<p>Por Usuário</p>
+										</a>
+									</li>
+
+									<li class="nav-item pl-2">
+										<a href="<?php echo HOME_URI; ?>/relatorios/index/porImpressora" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porImpressora') {
+																																echo 'active';
+																															} ?>">
+											<i class="fa-solid fa-tachograph-digital nav-icon"></i>
+											<p>Por Impressora</p>
+										</a>
+									</li>
+
+									<li class="nav-item pl-2">
+										<a href="<?php echo HOME_URI; ?>/relatorios/index/porEstacao" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porEstacao') {
+																															echo 'active';
+																														} ?>">
+											<i class="fa-solid fa-computer nav-icon"></i>
+											<p>Por Estação</p>
+										</a>
+									</li>
+
+									<li class="nav-item pl-2">
+										<a href="<?php echo HOME_URI; ?>/relatorios/index/porMes" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porMes') {
 																														echo 'active';
-																													} ?>"><i class="far fa-calendar nav-icon"></i>
-										<p>Impressoras</p>
-									</a></li>
-								<?php //if ($this->check_permissions('impressora-adicionar', $this->userdata['modulo'])) { 
-								?>
-								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/impressoras/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras' && (isset($activePage[2]) && $activePage[2] == 'adicionar')) {
-																																		echo 'active';
-																																	} ?>"><i class="far fa-calendar-plus nav-icon"></i>
-										<p>Adicionar</p>
-									</a></li>
-								<?php // } 
-								?>
-							</ul>
-						</li>
-						<!-- Fim Impressoras -->
+																													} ?>">
+											<i class="fa-solid fa-calendar-day nav-icon"></i>
+											<p>Por Mês</p>
+										</a>
+									</li>
 
-						<!-- Impressoes -->
-						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'impressoes') {
+								</ul>
+
+							</li>
+
+						<?php } ?>
+
+						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros') {
 												echo 'menu-open';
 											} ?>">
-							<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoes') {
-															echo 'active';
-														} ?>"><i class="nav-icon fas fa-print"></i>
-								<p>Impressões <i class="right fas fa-angle-left"></i></p>
-							</a>
-							<ul class="nav nav-treeview">
-								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/impressoes" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoes' && !isset($activePage[2])) {
-																														echo 'active';
-																													} ?>"><i class="far fa-calendar nav-icon"></i>
-										<p>Impressões</p>
-									</a></li>
-							</ul>
-						</li>
-						<!-- Fim Impressoes -->
-
-						<!-- Relatórios -->
-						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios') {
-												echo 'menu-open';
-											} ?>">
-							<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios') {
-															echo 'active';
-														} ?>"><i class="nav-icon fas fa-chart-pie"></i>
-								<p>Relatórios <i class="right fas fa-angle-left"></i></p>
-							</a>
-							<ul class="nav nav-treeview">
-								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/relatorios/index/porUsuario" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porUsuario') {
-																																		echo 'active';
-																																	} ?>"><i class="fa-solid fa-user"></i>
-										<p>Por Usuário</p>
-									</a></li>
-
-								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/relatorios/index/porImpressora" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porImpressora') {
-																																			echo 'active';
-																																		} ?>"><i class="fa-solid fa-tachograph-digital"></i>
-										<p>Por Impressora</p>
-									</a></li>
-
-								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/relatorios/index/porEstacao" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porEstacao') {
-																																		echo 'active';
-																																	} ?>"><i class="fa-solid fa-computer"></i>
-										<p>Por Estação</p>
-									</a></li>
-
-								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/relatorios/index/porMes" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porMes') {
-																																	echo 'active';
-																																} ?>"><i class="fa-solid fa-calendar-day"></i>
-										<p>Por Mês</p>
-									</a></li>
-							</ul>
-
-						</li>
-
-						<li class="nav-item">
-							<a href="#" class="nav-link"><i class="nav-icon fas fa-user"></i>
+							<a href="#" class="nav-link	<?php if (isset($activePage[0]) && $activePage[0] == 'parceiros') {
+																echo 'active';
+															} ?>
+							"><i class="nav-icon fas fa-user"></i>
 								<p>Parceiros <i class="right fas fa-angle-left"></i></p>
 							</a>
-							<ul class="nav nav-treeview">
-								<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros' && $activePage[2] != 'adicionar') {
-														echo 'active';
-													} ?>"><a href="<?php echo HOME_URI; ?>/parceiros" class="nav-link"><i class="far fa-calendar nav-icon"></i>
+							<ul class="nav nav-treeview ml-3">
+								<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/parceiros" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros' && !isset($activePage[2])) {
+																															echo 'active';
+																														} ?>"><i class="far fa-calendar nav-icon"></i>
 										<p>Parceiros</p>
 									</a></li>
 								<?php //if($this->check_permissions('empresa-adicionar', $this->userdata['modulo'])){
 								?>
-								<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros' && $activePage[2] == 'adicionar') {
-														echo 'active';
-													} ?>"><a href="<?php echo HOME_URI; ?>/parceiros/index/adicionar" class="nav-link"><i class="far fa-calendar-plus nav-icon"></i>
+								<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/parceiros/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros' && $activePage[2] == 'adicionar') {
+																																			echo 'active';
+																																		} ?>"><i class="far fa-calendar-plus nav-icon"></i>
 										<p>Adicionar</p>
 									</a></li>
 								<?php //} 
@@ -201,21 +286,27 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 							</ul>
 						</li>
 
-						<li class="nav-item">
-							<a href="#" class="nav-link"><i class="nav-icon fas fa-building"></i>
+						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'empresas') {
+												echo 'menu-open';
+											} ?>">
+							<a href="#" class="nav-link 
+							<?php if (isset($activePage[0]) && $activePage[0] == 'empresas') {
+								echo 'active';
+							} ?>
+							"><i class="nav-icon fas fa-building"></i>
 								<p>Empresas <i class="right fas fa-angle-left"></i></p>
 							</a>
-							<ul class="nav nav-treeview">
-								<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'empresas' && $activePage[2] != 'adicionar') {
-														echo 'active';
-													} ?>"><a href="<?php echo HOME_URI; ?>/empresas" class="nav-link"><i class="far fa-calendar nav-icon"></i>
+							<ul class="nav nav-treeview ml-3">
+								<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/empresas" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'empresas' && !isset($activePage[2])) {
+																															echo 'active';
+																														} ?>""><i class=" far fa-calendar nav-icon"></i>
 										<p>Empresas</p>
 									</a></li>
 								<?php //if($this->check_permissions('empresa-adicionar', $this->userdata['modulo'])){
 								?>
-								<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'empresas' && $activePage[2] == 'adicionar') {
-														echo 'active';
-													} ?>"><a href="<?php echo HOME_URI; ?>/empresas/index/adicionar" class="nav-link"><i class="far fa-calendar-plus nav-icon"></i>
+								<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/empresas/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'empresas' && $activePage[2] == 'adicionar') {
+																																			echo 'active';
+																																		} ?>"><i class="far fa-calendar-plus nav-icon"></i>
 										<p>Adicionar</p>
 									</a></li>
 								<?php //} 
@@ -233,43 +324,58 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 														} ?>"><i class="nav-icon fas fa-walking"></i>
 								<p>Pessoas <i class="right fas fa-angle-left"></i></p>
 							</a>
-							<ul class="nav nav-treeview">
-								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/pessoas" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas' && !isset($activePage[2])) {
-																													echo 'active';
-																												} ?>"><i class="far fa-calendar nav-icon"></i>
+							<ul class="nav nav-treeview ml-3">
+								<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/pessoas" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas' && !isset($activePage[2])) {
+																														echo 'active';
+																													} ?>"><i class="far fa-calendar nav-icon"></i>
 										<p>Pessoas</p>
 									</a></li>
 								<?php //if($this->check_permissions('pessoa-adicionar', $this->userdata['modulo'])){
 								?>
-								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/pessoas/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas' && (isset($activePage[2]) && $activePage[2] == 'adicionar')) {
-																																	echo 'active';
-																																} ?>"><i class="far fa-calendar-plus nav-icon"></i>
+								<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/pessoas/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas' && (isset($activePage[2]) && $activePage[2] == 'adicionar')) {
+																																		echo 'active';
+																																	} ?>"><i class="far fa-calendar-plus nav-icon"></i>
 										<p>Adicionar</p>
 									</a></li>
 								<?php //} 
 								?>
-								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/pessoas/index/perfil/<?php echo $_SESSION['userdata']['id']; ?>" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'usuarios' && isset($activePage[2]) && $activePage[2] == 'perfil' && $activePage[3] = null) {
-																																											echo 'active';
-																																										} ?>"><i class="fas fa-user nav-icon"></i>
+								<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/pessoas/index/perfil/<?php echo $_SESSION['userdata']['id']; ?>" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'usuarios' && isset($activePage[2]) && $activePage[2] == 'perfil' && $activePage[3] = null) {
+																																												echo 'active';
+																																											} ?>"><i class="fas fa-user nav-icon"></i>
 										<p>Seu Perfil</p>
 									</a></li>
 							</ul>
 						</li>
 						<?php //} 
 						?>
+						
 
-						<?php if ($this->check_permissions('sistema', $this->userdata['modulo'])) { ?>
-							<li class="nav-item">
-								<a href="#" class="nav-link"><i class="nav-icon fas fa-cogs"></i>
+						<!-- <?php if ($this->check_permissions('sistema', $this->userdata['modulo'])) { ?>
+							<li class="nav-item
+							<?php if (isset($activePage[0]) && $activePage[0] == 'configuracoes') {
+								echo 'menu-open';
+							} ?>
+							
+							">
+								<a href="#" class="nav-link 
+								<?php if (isset($activePage[0]) && $activePage[0] == 'configuracoes') {
+									echo 'active';
+								} ?>
+								"><i class="nav-icon fas fa-cogs"></i>
 									<p>Configurações <i class="right fas fa-angle-left"></i></p>
 								</a>
-								<ul class="nav nav-treeview">
-									<li class="nav-item"><a href="<?php echo HOME_URI; ?>/permissoes" class="nav-link"><i class="fas fa-key nav-icon"></i>
+								<ul class="nav nav-treeview ml-3">
+									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/permissoes" class="nav-link
+									<?php if (isset($activePage[0]) && $activePage[0] == 'permissoes' && !isset($activePage[2])) {
+										echo 'active';
+									} ?>
+									"><i class="fas fa-key nav-icon"></i>
 											<p>Permissões</p>
 										</a></li>
 								</ul>
 							</li>
-						<?php } ?>
+						<?php } ?> -->
+
 					</ul>
 				</nav>
 			</div>
@@ -331,6 +437,31 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 
 	<!-- ChartJS -->
 	<script src="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/chart.js/Chart.min.js"></script>
+
+	<script>
+		$(document).ready(function() {
+
+			// Inicializa o Select2 no campo de parceiro
+			$('#selectParceiro').select2({
+				theme: "classic"
+
+			});
+
+			$('#selectParceiro').change(function() {
+				var idParceiro = $(this).val();
+				$.ajax({
+					url: '<?php echo HOME_URI; ?>/parceiros/index/setParceiro',
+					type: 'POST',
+					data: {
+						idParceiro: idParceiro
+					},
+					success: function(data) {
+						location.reload();
+					}
+				});
+			});
+		});
+	</script>
 
 </body>
 

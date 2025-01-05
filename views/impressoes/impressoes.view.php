@@ -5,8 +5,12 @@ if (!defined('ABSPATH')) exit;
 $status = isset($_REQUEST["status"]) ? $_REQUEST["status"] : null;
 $q = isset($_REQUEST["q"]) ? $_REQUEST["q"] : null;
 
+$hash = $_SESSION['idParceiroHash'];
+$idParceiro = decryptHash($hash);
+
 // Define os filtros para a busca de impressões
-$filtros = array('status' => $status, 'q' => $q);
+$filtros = array('status' => $status, 'q' => $q, 'idParceiro' => $idParceiro);
+
 
 // Obtém a lista de impressões com base nos filtros aplicados
 $impressao = $modelo->getImpressoes($filtros);

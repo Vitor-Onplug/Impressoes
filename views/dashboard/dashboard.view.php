@@ -1,6 +1,7 @@
 <?php if (!defined('ABSPATH')) exit;
-
-$dadosDashboard = $modelo->getDadosDashboard();
+$hash = $_SESSION['idParceiroHash'];
+$idParceiro = decryptHash($hash);
+$dadosDashboard = $modelo->getDadosDashboard($idParceiro);
 ?>
 
 <div class="content-wrapper">

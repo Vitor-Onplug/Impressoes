@@ -8,6 +8,7 @@ if (chk_array($this->parametros, 0) == 'editar') {
 
     $parceiro = $modelo->getParceiro($id);
 
+
     if (!empty($modelo->form_msg) && preg_match('/(inexistente|encontrado)/simx', $modelo->form_msg)) {
         echo '<meta http-equiv="refresh" content="0; url=' . HOME_URI . '/parceiros">';
         echo '<script type="text/javascript">window.location.href = "' . HOME_URI . '/parceiros";</script>';
@@ -15,14 +16,14 @@ if (chk_array($this->parametros, 0) == 'editar') {
     }
 } else {
     $parceiro = null;
+    $idParceiroUsuario = $modelo->getIdParceiroUsuario($_SESSION['userdata']['idUsuario']);
 }
 
-if (isset($_POST['idEmpresa'])) {
+if (isset($_POST['idEmpresas'])) {
     $modelo->validarParceiro();
 }
 
 ?>
-
 <div class="content-wrapper">
     <section class="content-header">
         <div class="container-fluid">
@@ -50,42 +51,87 @@ if (isset($_POST['idEmpresa'])) {
                 <div class="card-body">
                     <?php echo $modelo->form_msg; ?>
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
+                            <!-- Nome do Parceiro -->
                             <div class="form-group">
-                                <label for="idEmpresa">Empresa</label>
-                                <select class="form-control" id="idEmpresa" name="idEmpresa" required>
-                                    <option value="">Selecione uma empresa</option>
+                                <label for="nome">Nome Parceria</label>
+                                <input type="text" class="form-control" id="nomeParceiro" name="nomeParceiro" placeholder="Digite o nome"
+                                    value="<?php echo htmlspecialchars(chk_array($parceiro, 'nomeParceiro') ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                    required maxlength="255">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Tipo de Parceiro -->
+                            <!-- Tipo de Parceiro -->
+                            <div class="form-group">
+                                <label for="tipo">Tipo</label>
+                                <select class="form-control" id="tipo" name="tipo"
+                                    <?php echo chk_array($this->parametros, 0) == 'editar' ? 'disabled' : ''; ?>
+                                    required>
+                                    <option value="">Selecione um tipo</option>
                                     <?php
-                                    $empresasComParceiros = $modeloEmpresa->getEmpresasParceiros();
+                                    $tipos = $modelo->getTiposParceiros();
+                                    $tipoSelecionado = $parceiro['tipo'] ?? null;
 
-                                    foreach ($empresasComParceiros as $empresa) {
-                                        if (chk_array($this->parametros, 0) == 'editar') {
-                                            // Mostrar a empresa correspondente ao parceiro em edição
-                                            $selected = $empresa['id'] == $parceiro['idEmpresa'] ? 'selected' : '';
-                                            echo "<option value='" . $empresa['id'] . "' $selected>" . $empresa['razaoSocial'] . "</option>";
-                                        } else {
-                                            // Ocultar empresas que já possuem parceiros
-                                            if (!isset($empresa['idParceiro']) || $empresa['idParceiro'] == null) {
-                                                echo "<option value='" . $empresa['id'] . "'>" . $empresa['razaoSocial'] . "</option>";
-                                            }
-                                        }
+                                    foreach ($tipos as $tipo) {
+                                        $selected = $tipo == $tipoSelecionado ? 'selected' : '';
+                                        echo "<option value='$tipo' $selected>" . ucfirst(strtolower($tipo)) . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                                <?php if (chk_array($this->parametros, 0) == 'editar'): ?>
+                                    <!-- Campo oculto para enviar o tipo no modo de edição -->
+                                    <input type="hidden" name="tipo" value="<?php echo htmlspecialchars($tipoSelecionado, ENT_QUOTES, 'UTF-8'); ?>">
+                                <?php endif; ?>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-12">
+                            <!-- Empresas Associadas -->
+                            <div class="form-group">
+                                <label for="idEmpresas">Empresas</label>
+                                <select class="form-control select2" id="idEmpresas" name="idEmpresas[]" multiple required>
+                                    <?php
+                                    $empresas = $modeloEmpresa->getEmpresas();
+                                    $empresasSelecionadas = $modelo->getEmpresasDoParceiro($parceiro['id'] ?? null);
+
+                                    var_dump($empresasSelecionadas);
+
+                                    foreach ($empresas as $empresa) {
+                                        $selected = in_array($empresa['id'], $empresasSelecionadas) ? 'selected' : '';
+                                        echo "<option value='{$empresa['id']}' $selected>{$empresa['razaoSocial']}</option>";
                                     }
                                     ?>
                                 </select>
                             </div>
 
+                            <!-- Campo oculto para o ID do parceiro -->
+                            <input type="hidden" name="idParceiro"
+                                value="<?php
+                                        if (chk_array($this->parametros, 0) === 'editar') {
+                                            // No modo de edição, use o ID do parceiro salvo
+                                            echo htmlspecialchars($parceiro['idParceiro'] ?? '', ENT_QUOTES, 'UTF-8');
+                                        } else {
+                                            // No modo de criação, use o ID do parceiro associado ao usuário
+                                            echo htmlspecialchars($idParceiroUsuario['idParceiro'] ?? '', ENT_QUOTES, 'UTF-8');
+                                        }
+                                        ?>">
+
+
+                            <!-- Token -->
                             <div class="form-group">
                                 <label for="token">Token</label>
-                                <input type="text" class="form-control" id="token" name="token" placeholder=""
-                                       value="<?php echo htmlentities(chk_array($parceiro, 'token') ?? ''); ?>"
-                                       required maxlength="255">
+                                <input type="text" class="form-control" id="token" name="token" placeholder="Digite o token"
+                                    value="<?php echo htmlspecialchars(chk_array($parceiro, 'token') ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                    required maxlength="255">
                             </div>
 
+                            <!-- Observações -->
                             <div class="form-group">
                                 <label for="observacoes">Observações</label>
-                                <textarea class="form-control" rows="3" placeholder="" name="observacoes" id="observacoes"><?php echo htmlentities($parceiro['observacoes'] ?? ''); ?></textarea>
+                                <textarea class="form-control" rows="3" placeholder="Adicione observações" name="observacoes" id="observacoes"><?php echo htmlspecialchars(chk_array($parceiro, 'observacoes') ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                             </div>
-
                         </div>
                     </div>
                 </div>

@@ -1,7 +1,8 @@
 <?php if (!defined('ABSPATH')) exit;
-
+$hash = $_SESSION['idParceiroHash'];
+$idParceiro = decryptHash($hash);
 $mesSelecionado = isset($_POST['mes']) ? $_POST['mes'] : date('Y-m');
-$relatorio = $modelo->getRelatorioPorDia($mesSelecionado);
+$relatorio = $modelo->getRelatorioPorDia($mesSelecionado, $idParceiro);
 $meses = [
     'January' => 'Janeiro',
     'February' => 'Fevereiro',

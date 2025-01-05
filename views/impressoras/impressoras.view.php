@@ -1,6 +1,9 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
+$hash = $_SESSION['idParceiroHash'];
+$idParceiro = decryptHash($hash);
+
 // Ações para bloquear e desbloquear uma impressora
 if (chk_array($this->parametros, 0) == 'bloquear') {
     $modelo->bloquearImpressora();
@@ -15,7 +18,7 @@ $status = isset($_REQUEST["status"]) ? $_REQUEST["status"] : null;
 $q = isset($_REQUEST["q"]) ? $_REQUEST["q"] : null;
 
 // Define os filtros para a busca de impressoras
-$filtros = array('status' => $status, 'q' => $q);
+$filtros = array('status' => $status, 'q' => $q, 'idParceiro' => $idParceiro);
 
 // Obtém a lista de impressoras com base nos filtros aplicados
 $impressoras = $modelo->getImpressoras($filtros);

@@ -1,5 +1,7 @@
 <?php if (!defined('ABSPATH')) exit;
-$relatorio = $modelo->getRelatorioPorImpressora();
+$hash = $_SESSION['idParceiroHash'];
+$idParceiro = decryptHash($hash);
+$relatorio = $modelo->getRelatorioPorImpressora($idParceiro);
 ?>
 
 <div class="content-wrapper">

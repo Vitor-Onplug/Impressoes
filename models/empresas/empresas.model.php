@@ -129,22 +129,6 @@ class EmpresasModel extends MainModel {
 	public function getEmpresas($filtros = null){
 		return $this->ClasseEmpresa->getEmpresas($filtros);
 	}
-
-	public function getEmpresasParceiros($filtros = null){
-		$sql = "SELECT `tblEmpresa`.*, `tblParceiro`.`id` as `idParceiro`, `tblParceiro`.`idEmpresa` 
-		FROM `tblEmpresa` 
-		LEFT JOIN `tblParceiro` ON `tblEmpresa`.`id` = `tblParceiro`.`idEmpresa` 
-		WHERE `tblEmpresa`.`status` = 'T';
-		";
-
-        $query = $this->db->query($sql);
-
-        if (!$query) {
-            return array();
-        }
-
-        return $query->fetchAll();
-	}
 	
 	public function getAvatar($id = null, $tn = false){
 		if(is_numeric($id) && $id > 0){
@@ -190,9 +174,6 @@ class EmpresasModel extends MainModel {
 		
 			$query = $this->db->update('tblEmpresa', 'id', $id, array('status' => 'F'));
 
-			// Bloquear o parceiro vinculado a empresa
-			$query = $this->db->update('tblParceiro', 'idEmpresa', $id, array('status' => 'F'));
-			
 			$this->form_msg = $this->controller->Messages->success('Registro bloqueado com sucesso.');
 			$this->form_msg .= '<meta http-equiv="refresh" content="2; url=' . HOME_URI . '/empresas/">';
 		
