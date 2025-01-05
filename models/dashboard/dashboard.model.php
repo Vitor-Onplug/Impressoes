@@ -41,7 +41,7 @@ class DashboardModel extends MainModel
 
 		$impressaoMes = $queryImpressaoMes->fetch()['total'];
 
-		$where = " WHERE tblImpressoes.idParceiro = " . $idParceiro;
+		$where = " WHERE tblImpressoes.idParceiro = " . $idParceiro . " ";
 
 		// Impressões por Usuário
 		$queryUsuarios = $this->db->query("
