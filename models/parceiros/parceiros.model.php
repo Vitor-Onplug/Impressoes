@@ -257,16 +257,6 @@ class ParceirosModel extends MainModel
             'dataEdicao' => date('Y-m-d H:i:s')
         );
 
-        // Verificar se o token já existe
-        $token = chk_array($this->form_data, 'token');
-        $query = $this->db->query('SELECT COUNT(*) as total FROM tblParceiro WHERE token = ?', [$token]);
-        $result = $query->fetch();
-
-        if ($result['total'] > 0) {
-            $this->form_msg = '<p class="form_error">O token informado já está em uso. Por favor, escolha outro.</p>';
-            return;
-        }
-
         // Atualize o registro no banco de dados
         $query = $this->db->update('tblParceiro', 'id', $id, $this->form_data);
 
