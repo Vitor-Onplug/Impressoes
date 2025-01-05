@@ -18,8 +18,11 @@ function chk_array ($array, $key) {
     return null;
 }
 
-
+// Função para criptografar um número inteiro
 function encryptId($id, $dataCriacao = "") {
+	if(empty($dataCriacao) || empty($id)){
+		return false;
+	}
     $secretKey = HASH_KEY;  // Chave secreta para criptografia
     $cipherMethod = 'AES-256-CBC';       // Método de criptografia
     $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($cipherMethod));  // Gera um IV aleatório
@@ -37,8 +40,11 @@ function encryptId($id, $dataCriacao = "") {
     return strtr($base64Encrypted, '+/=', '-_,');
 }
 
-
+// Função para descriptografar um número inteiro
 function decryptHash($encryptedData) {
+	if(empty($encryptedData)){
+		return false;
+	}
     $secretKey = HASH_KEY;  // A mesma chave secreta usada na criptografia
     $cipherMethod = 'AES-256-CBC';       // O mesmo método de criptografia
 
@@ -208,6 +214,7 @@ function mesAbreviado($mes) {
 }
 
 function diff_datas($inicio, $final){
+
 	$inicio = explode("/", $inicio);
 	$final = explode("/", $final);
 	$timeInicio = mktime(0, 0, 0, $inicio[1], $inicio[0], $inicio[2]);
@@ -217,7 +224,9 @@ function diff_datas($inicio, $final){
 	$intervalo = (int)floor($intervalo / (60 * 60 * 24));
 
 	return $intervalo;
-}function _geraURL($str, $replace=array(), $delimiter='-') {
+}
+
+function _geraURL($str, $replace=array(), $delimiter='-') {
     setlocale(LC_ALL, 'en_US.UTF8');
     if( !empty($replace) ) {
         $str = str_replace((array)$replace, ' ', $str);
