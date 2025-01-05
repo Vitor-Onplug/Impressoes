@@ -20,7 +20,7 @@ function chk_array ($array, $key) {
 
 // Função para criptografar um número inteiro
 function encryptId($id, $dataCriacao = "") {
-	if(empty($dataCriacao) || empty($id)){
+	if(empty($id)){
 		return false;
 	}
     $secretKey = HASH_KEY;  // Chave secreta para criptografia
