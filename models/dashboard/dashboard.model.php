@@ -52,6 +52,7 @@ class DashboardModel extends MainModel
         ORDER BY total DESC
         LIMIT 10
     ");
+	var_dump($queryUsuarios);
 		$usuarios = $queryUsuarios->fetchAll(PDO::FETCH_ASSOC);
 
 		// Impressões por Impressora
