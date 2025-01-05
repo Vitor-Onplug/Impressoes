@@ -1,5 +1,5 @@
 <?php if (!defined('ABSPATH')) exit;
-$relatorio = $modelo->getRelatorioPorUsuario($_SESSION['userdata']['id']);
+$relatorio = $modelo->getRelatorioPorUsuario();
 ?>
 
 <div class="content-wrapper">

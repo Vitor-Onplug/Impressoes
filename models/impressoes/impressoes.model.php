@@ -17,102 +17,37 @@ class ImpressoesModel extends MainModel
         $this->userdata = $this->controller->userdata;
     }
 
-    // function getImpressoes($filtros = null, $idUsuario = null)
-    // {
-    //     $where = "1=1";
-    //     $orderby = "";
-
-    //     if (!empty($filtros["q"])) {
-    //         $where = " (`tblImpressoes`.`nomeUsuario` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
-    //         $where .= " OR (`tblImpressoes`.`nomeImpressora` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
-    //         $where .= " OR (`tblImpressoes`.`nomeArquivo` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
-    //         $where .= " OR (`tblImpressoes`.`cliente` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
-
-    //     }
-
-
-    //     $orderby = "ORDER BY `tblImpressoes`.`dataCadastro` DESC";
-
-    //     $sql = "SELECT `tblImpressoes`.*, `tblMarcaImpressora`.`nome` AS `marca`, `tblDepartamento`.`nome` AS `departamento`
-    //             FROM `tblImpressoes`
-    //             LEFT JOIN `tblImpressora` ON `tblImpressoes`.`idImpressora` = `tblImpressora`.`id`
-    //             LEFT JOIN `tblMarcaImpressora` ON `tblImpressora`.`idMarca` = `tblMarcaImpressora`.`id`
-    //             LEFT JOIN `tblDepartamento` ON `tblImpressora`.`idDepartamento` = `tblDepartamento`.`id`
-    //             WHERE $where $orderby";
-
-    //     $query = $this->db->query($sql);
-
-    //     if (!$query) {
-    //         return array();
-    //     }
-
-    //     return $query->fetchAll();
-    // }
-
     function getImpressoes($filtros = null, $idUsuario = null)
     {
-        $whereClauses = array();
-        $params = array();
+        $where = "1=1";
+        $orderby = "";
+
+        if (!empty($filtros["q"])) {
+            $where = " (`tblImpressoes`.`nomeUsuario` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
+            $where .= " OR (`tblImpressoes`.`nomeImpressora` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
+            $where .= " OR (`tblImpressoes`.`nomeArquivo` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
+            $where .= " OR (`tblImpressoes`.`cliente` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
+
+        }
+
+
         $orderby = "ORDER BY `tblImpressoes`.`dataCadastro` DESC";
 
-        // Base condition
-        $whereClauses[] = "1=1";
-
-        // Search Filters
-        if (!empty($filtros["q"])) {
-            $searchTerm = '%' . _otimizaBusca($filtros['q']) . '%';
-            $whereClauses[] = "(`tblImpressoes`.`nomeUsuario` LIKE ? 
-                            OR `tblImpressoes`.`nomeImpressora` LIKE ? 
-                            OR `tblImpressoes`.`nomeArquivo` LIKE ? 
-                            OR `tblImpressoes`.`cliente` LIKE ?)";
-            $params = array_merge($params, array($searchTerm, $searchTerm, $searchTerm, $searchTerm));
-        }
-
-        // Get User Data
-        if (!empty($idUsuario)) {
-            $queryUser = $this->db->query("SELECT * FROM vwUsuarios WHERE idUsuario = ?", array($idUsuario));
-            $userData = $queryUser->fetch();
-
-            if ($userData) {
-                if ($userData['idPermissao'] !== 1) {
-                    $idEmpresa = $userData['idEmpresa'];
-                    $queryParceiro = $this->db->query("SELECT id FROM tblParceiro WHERE idEmpresa = ?", array($idEmpresa));
-                    $parceiros = $queryParceiro->fetchAll(PDO::FETCH_COLUMN, 0);
-
-                    if (!empty($parceiros)) {
-                        $placeholders = implode(',', array_fill(0, count($parceiros), '?'));
-                        $whereClauses[] = "tblImpressoes.idParceiro IN ($placeholders)";
-                        $params = array_merge($params, $parceiros);
-                    } else {
-                        return array(); // No parceiros associated
-                    }
-                }
-            }
-        }
-
-        // Combine WHERE clauses
-        $where = implode(' AND ', $whereClauses);
-
-        // Complete SQL Query
         $sql = "SELECT `tblImpressoes`.*, `tblMarcaImpressora`.`nome` AS `marca`, `tblDepartamento`.`nome` AS `departamento`
-            FROM `tblImpressoes`
-            LEFT JOIN `tblImpressora` ON `tblImpressoes`.`idImpressora` = `tblImpressora`.`id`
-            LEFT JOIN `tblMarcaImpressora` ON `tblImpressora`.`idMarca` = `tblMarcaImpressora`.`id`
-            LEFT JOIN `tblDepartamento` ON `tblImpressora`.`idDepartamento` = `tblDepartamento`.`id`
-            WHERE $where $orderby";
+                FROM `tblImpressoes`
+                LEFT JOIN `tblImpressora` ON `tblImpressoes`.`idImpressora` = `tblImpressora`.`id`
+                LEFT JOIN `tblMarcaImpressora` ON `tblImpressora`.`idMarca` = `tblMarcaImpressora`.`id`
+                LEFT JOIN `tblDepartamento` ON `tblImpressora`.`idDepartamento` = `tblDepartamento`.`id`
+                WHERE $where $orderby";
 
-
-        // Prepare and execute the query
         $query = $this->db->query($sql);
-        
+
         if (!$query) {
             return array();
         }
 
         return $query->fetchAll();
     }
-
-
 
     function getImpressao($id = null)
     {

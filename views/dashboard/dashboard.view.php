@@ -1,6 +1,6 @@
 <?php if (!defined('ABSPATH')) exit;
 
-$dadosDashboard = $modelo->getDadosDashboard($_SESSION['userdata']['id']);
+$dadosDashboard = $modelo->getDadosDashboard();
 ?>
 
 <div class="content-wrapper">

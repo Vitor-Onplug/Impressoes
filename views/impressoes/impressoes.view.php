@@ -9,7 +9,7 @@ $q = isset($_REQUEST["q"]) ? $_REQUEST["q"] : null;
 $filtros = array('status' => $status, 'q' => $q);
 
 // Obtém a lista de impressões com base nos filtros aplicados
-$impressao = $modelo->getImpressoes($filtros, $_SESSION['userdata']['id']);
+$impressao = $modelo->getImpressoes($filtros);
 
 ?>
 

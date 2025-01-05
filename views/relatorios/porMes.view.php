@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit;
 
 $mesSelecionado = isset($_POST['mes']) ? $_POST['mes'] : date('Y-m');
-$relatorio = $modelo->getRelatorioPorDia($_SESSION['userdata']['id'], $mesSelecionado);
+$relatorio = $modelo->getRelatorioPorDia($mesSelecionado);
 $meses = [
     'January' => 'Janeiro',
     'February' => 'Fevereiro',

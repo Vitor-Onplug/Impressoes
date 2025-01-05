@@ -1,5 +1,5 @@
 <?php if (!defined('ABSPATH')) exit;
-$relatorio = $modelo->getRelatorioPorImpressora($_SESSION['userdata']['id']);
+$relatorio = $modelo->getRelatorioPorImpressora();
 ?>
 
 <div class="content-wrapper">
