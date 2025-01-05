@@ -18,7 +18,7 @@ class DashboardModel extends MainModel
 		$this->userdata = $this->controller->userdata;
 	}
 
-	public function getDadosDashboard($idParceiro = null)
+	public function getDadosDashboard($idParceiro = 0)
 	{
 		// Total de Impressões
 		$queryTotalImpressao = $this->db->query("SELECT COUNT(*) as total FROM tblImpressoes WHERE idParceiro = ?", array($idParceiro));
