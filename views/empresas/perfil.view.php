@@ -1,22 +1,17 @@
 <?php 
 if(!defined('ABSPATH')) exit; 
 
-$parametros[1] = chk_array($parametros, 1);
-
-
-if(!empty(chk_array($parametros, 1)) && !is_numeric(chk_array($parametros, 1))){
-	echo '<meta http-equiv="refresh" content="0; url=' . HOME_URI . '/empresas">';
-	echo '<script type="text/javascript">window.location.href = "' . HOME_URI . '/empresas";</script>';
-	
-	exit;
+if (chk_array($this->parametros, 1)) {
+	$hash = chk_array($this->parametros, 1);
+	$id = decryptHash($hash);
 }
 
-$modelo->getEmpresa(chk_array($parametros, 1));
+$modelo->getEmpresa($id);
 
-$documentos = $modeloDocumentos->getDocumentosEmpresa(chk_array($parametros, 1));
-$emails = $modeloEmails->getEmailsEmpresa(chk_array($parametros, 1));
-$enderecos = $modeloEnderecos->getEnderecosEmpresa(chk_array($parametros, 1));
-$telefones = $modeloTelefones->getTelefonesEmpresa(chk_array($parametros, 1));
+$documentos = $modeloDocumentos->getDocumentosEmpresa($id);
+$emails = $modeloEmails->getEmailsEmpresa($id);
+$enderecos = $modeloEnderecos->getEnderecosEmpresa($id);
+$telefones = $modeloTelefones->getTelefonesEmpresa($id);
 ?>
 		<div class="content-wrapper">
 			<section class="content-header">

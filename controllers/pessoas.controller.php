@@ -21,6 +21,7 @@ class PessoasController extends MainController {
 		$modeloTelefones = $this->load_model('pessoas/telefones');
 		$modeloEmails = $this->load_model('pessoas/emails');
 		$modeloEnderecos = $this->load_model('pessoas/enderecos');
+		$modeloEmpresa = $this->load_model('empresas/empresas');
 		
 		$modeloUsuarios = $this->load_model('usuarios/usuarios');
 		$modeloPermissoes = $this->load_model('permissoes/permissoes');

@@ -19,6 +19,7 @@ class UsuariosController extends MainController
         $parametros = (func_num_args() >= 1) ? func_get_arg(0) : array();
 		
 		$modelo = $this->load_model('usuarios/usuarios');
+        $modeloEmpresa = $this->load_model('empresas/empresas');
 
         if(chk_array($this->parametros, 0) == 'adicionar'){
             $this->title = SYS_NAME . ' - Adicionar Usuário';

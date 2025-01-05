@@ -3,23 +3,21 @@ if(!defined('ABSPATH')) exit;
 
 if(chk_array($this->parametros, 0) == 'editar'){
 	
-	$parametros[1] = chk_array($parametros, 1);
+	if (chk_array($this->parametros, 1)) {
+		$hash = chk_array($this->parametros, 1);
+		$id = decryptHash($hash);
+	}
 	
-	$modelo->getEmpresas(chk_array($parametros, 1));
-	
+	$modelo->getEmpresa($id);
+
+
 	if(preg_match('/(inexistente|encontrado)/simx', $modelo->form_msg)){
 		echo '<meta http-equiv="refresh" content="0; url=' . HOME_URI . '/empresas">';
 		echo '<script type="text/javascript">window.location.href = "' . HOME_URI . '/empresas";</script>';
 		
 		exit;
 	}
-	
-	if(!empty(chk_array($parametros, 1)) && !is_numeric(chk_array($parametros, 1))){
-		echo '<meta http-equiv="refresh" content="0; url=' . HOME_URI . '/empresas">';
-		echo '<script type="text/javascript">window.location.href = "' . HOME_URI . '/empresas";</script>';
-		
-		exit;
-	}
+
 }
 
 ?>

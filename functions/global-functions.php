@@ -1,26 +1,26 @@
 <?php
-spl_autoload_register(function ($class_name) {
-	$file = ABSPATH . '/classes/' . $class_name . '.class.php';
+spl_autoload_register(function($class_name){
+    $file = ABSPATH . '/classes/' . $class_name . '.class.php';
 
-	if (!file_exists($file)) {
-		require_once ABSPATH . '/views/404.view.php';
-		return;
-	}
+    if (!file_exists($file)){
+        require_once ABSPATH . '/views/404.view.php';
+        return;
+    }
 
-	require_once $file;
+    require_once $file;
 });
 
-function chk_array($array, $key)
-{
-	if (isset($array[$key]) && ! empty($array[$key])) {
-		return $array[$key];
-	}
+function chk_array ($array, $key) {
+    if( isset($array[$key]) && ! empty( $array[$key])){
+        return $array[$key];
+    }
 
-	return null;
+    return null;
 }
 
+
 function encryptId($id, $dataCriacao = "") {
-    $secretKey = 'meuSaltSecreto12345';  // Chave secreta para criptografia
+    $secretKey = HASH_KEY;  // Chave secreta para criptografia
     $cipherMethod = 'AES-256-CBC';       // Método de criptografia
     $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length($cipherMethod));  // Gera um IV aleatório
     
@@ -39,7 +39,7 @@ function encryptId($id, $dataCriacao = "") {
 
 
 function decryptHash($encryptedData) {
-    $secretKey = 'meuSaltSecreto12345';  // A mesma chave secreta usada na criptografia
+    $secretKey = HASH_KEY;  // A mesma chave secreta usada na criptografia
     $cipherMethod = 'AES-256-CBC';       // O mesmo método de criptografia
 
 	// Reverte a substituição de caracteres para recuperar a string base64 original
@@ -63,228 +63,151 @@ function decryptHash($encryptedData) {
     return $id;
 }
 
-
-function RemoveAcentos($msg)
-{
-	$a = array(
-		'/[ÂÀÁÄÃ]/' => 'A',
-		'/[âãàáä]/' => 'a',
-		'/[ÊÈÉË]/' => 'E',
-		'/[êèéë]/' => 'e',
-		'/[ÎÍÌÏ]/' => 'I',
-		'/[îíìï]/' => 'i',
-		'/[ÔÕÒÓÖ]/' => 'O',
-		'/[ôõòóö]/' => 'o',
-		'/[ÛÙÚÜ]/' => 'U',
-		'/[ûúùü]/' => 'u',
-		'/ç/' => 'c',
-		'/Ç/' => 'C',
-		'/ñ/' => 'n',
-		'/Ñ/' => 'N'
-	);
-
-	return preg_replace(array_keys($a), array_values($a), $msg);
+function RemoveAcentos($msg){  
+    $a = array( 
+            '/[ÂÀÁÄÃ]/'=>'A', 
+            '/[âãàáä]/'=>'a', 
+            '/[ÊÈÉË]/'=>'E', 
+            '/[êèéë]/'=>'e', 
+            '/[ÎÍÌÏ]/'=>'I', 
+            '/[îíìï]/'=>'i', 
+            '/[ÔÕÒÓÖ]/'=>'O', 
+            '/[ôõòóö]/'=>'o', 
+            '/[ÛÙÚÜ]/'=>'U', 
+            '/[ûúùü]/'=>'u', 
+            '/ç/'=>'c', 
+            '/Ç/'=> 'C', 
+            '/ñ/'=>'n', 
+            '/Ñ/'=> 'N'
+    );  
+    
+    return preg_replace(array_keys($a), array_values($a), $msg);  
 }
 
-function _vcpfj($candidato)
-{
-	$l = strlen($candidato = str_replace(array(".", "-", "/"), "", $candidato));
-	if ((!is_numeric($candidato)) || (!in_array($l, array(11, 14))) || (count(count_chars($candidato, 1)) == 1)) {
-		return false;
-	}
-	$cpfj = str_split(substr($candidato, 0, $l - 2));
-	$k = 9;
+function _vcpfj($candidato){
+    $l = strlen($candidato = str_replace(array(".","-","/"),"",$candidato));
+    if ((!is_numeric($candidato)) || (!in_array($l,array(11,14))) || (count(count_chars($candidato,1))==1)) {
+        return false;
+    }
+    $cpfj = str_split(substr($candidato,0,$l-2));
+    $k = 9;
 	$s = null;
-	for ($j = 0; $j < 2; $j++) {
-		for ($i = (count($cpfj)); $i > 0; $i--) {
-			$s += $cpfj[$i - 1] * $k;
-			$k--;
-			$l == 14 && $k < 2 ? $k = 9 : 1;
-		}
-		$cpfj[] = $s % 11 == 10 ? 0 : $s % 11;
-		$s = 0;
-		$k = 9;
-	}
-	return $candidato == join($cpfj);
+    for ($j=0;$j<2;$j++) {
+        for ($i=(count($cpfj));$i>0;$i--) {
+            $s += $cpfj[$i-1] * $k;
+            $k--;
+            $l==14&&$k<2?$k=9:1;
+        }
+        $cpfj[] = $s%11==10?0:$s%11;
+        $s = 0;
+        $k = 9;
+    }    
+    return $candidato==join($cpfj);
 }
 
-function validarPassaporte($passaporte) {
-    // Remove espaços e converte para maiúsculas
-    $passaporte = strtoupper(str_replace(" ", "", $passaporte));
-
-    // Verifica se o passaporte segue o formato padrão: 2 letras seguidas de 7 dígitos
-    if (preg_match('/^[A-Z]{2}[0-9]{7}$/', $passaporte)) {
-        return true;
-    }
-
-    return false;
-}
-
-function validarCNH($cnh) {
-    // Remove caracteres não numéricos
-    $cnh = preg_replace('/\D/', '', $cnh);
-
-    // CNH deve ter exatamente 11 dígitos
-    if (strlen($cnh) !== 11) {
-        return false;
-    }
-
-    // Se todos os caracteres forem iguais, é inválida (ex: 11111111111)
-    if (preg_match("/^([0-9])\1*$/", $cnh)) {
-        return false;
-    }
-
-    // Cálculo do primeiro dígito verificador
-    $soma = 0;
-    for ($i = 0, $j = 9; $i < 9; $i++, $j--) {
-        $soma += (int)$cnh[$i] * $j;
-    }
-
-    $resto = $soma % 11;
-    $verificador1 = ($resto >= 10) ? 0 : $resto;
-
-    // Cálculo do segundo dígito verificador
-    $soma = 0;
-    for ($i = 0, $j = 1; $i < 9; $i++, $j++) {
-        $soma += (int)$cnh[$i] * $j;
-    }
-
-    $resto = $soma % 11;
-    $verificador2 = ($resto >= 10) ? 0 : $resto;
-
-    // Verifica os dígitos calculados com os fornecidos
-    return $cnh[9] == $verificador1 && $cnh[10] == $verificador2;
-}
-
-function _otimizaBusca($keyword)
-{
+function _otimizaBusca($keyword){
 	$keyword = trim($keyword);
 	$keyword = str_replace(' ', '%', $keyword);
 	return $keyword;
 }
 
-function createdir($directory)
-{
-	if (!is_dir($directory)) {
+function createdir($directory){
+	if(!is_dir($directory)){
 		mkdir($directory, 0777, true);
 		chmod($directory, 0777);
-
+		
 		return true;
-	} elseif (is_dir($directory)) {
+	}elseif(is_dir($directory)){
 		return true;
-	} else {
+	}else{
 		return false;
 	}
 }
 
-function rrmdir($dir)
-{
-	if (is_dir($dir)) {
+function rrmdir($dir){
+	if (is_dir($dir)){
 		$files = scandir($dir);
-		foreach ($files as $file) {
+		foreach ($files as $file){
 			if ($file != "." && $file != "..") rrmdir("$dir/$file");
 		}
 		rmdir($dir);
-	} elseif (file_exists($dir)) {
+	}elseif(file_exists($dir)){
 		unlink($dir);
 	}
 }
-
-function rcopy($src, $dst)
-{
-	if (file_exists($dst)) {
+  
+function rcopy($src, $dst) {
+	if(file_exists($dst)){
 		rrmdir($dst);
 	}
-	if (is_dir($src)) {
+	if(is_dir($src)){
 		createdir($dst);
 		$files = scandir($src);
-		foreach ($files as $file) {
-			if ($file != "." && $file != "..") {
+		foreach($files as $file){
+			if($file != "." && $file != ".."){
 				rcopy("$src/$file", "$dst/$file");
 			}
 		}
-	} elseif (file_exists($src)) {
+	}elseif(file_exists($src)){
 		copy($src, $dst);
 	}
 }
 
-function diaAbreviado($data)
-{
+function diaAbreviado($data) {
 	$ano =  substr($data, 0, 4);
 	$mes =  substr($data, 5, -3);
 	$dia =  substr($data, 8, 9);
-	$diaAbreviado = date("w", mktime(0, 0, 0, $mes, $dia, $ano));
-	switch ($diaAbreviado) {
-		case "0":
-			$diaAbreviado = "Dom";
-			break;
-		case "1":
-			$diaAbreviado = "Seg";
-			break;
-		case "2":
-			$diaAbreviado = "Ter";
-			break;
-		case "3":
-			$diaAbreviado = "Qua";
-			break;
-		case "4":
-			$diaAbreviado = "Qui";
-			break;
-		case "5":
-			$diaAbreviado = "Sex";
-			break;
-		case "6":
-			$diaAbreviado = "Sáb";
-			break;
+	$diaAbreviado = date("w", mktime(0,0,0,$mes,$dia,$ano) );
+	switch($diaAbreviado) {
+		case"0": $diaAbreviado = "Dom";
+		break;
+		case"1": $diaAbreviado = "Seg"; 
+		break;
+		case"2": $diaAbreviado = "Ter";   
+		break;
+		case"3": $diaAbreviado = "Qua";  
+		break;
+		case"4": $diaAbreviado = "Qui";  
+		break;
+		case"5": $diaAbreviado = "Sex";   
+		break;
+		case"6": $diaAbreviado = "Sáb";  
+		break;
 	}
 	return $diaAbreviado;
 }
 
-function mesAbreviado($mes)
-{
-	switch ($mes) {
-		case "01":
-			$mesAbreviado = "Jan";
-			break;
-		case "02":
-			$mesAbreviado = "Fev";
-			break;
-		case "03":
-			$mesAbreviado = "Mar";
-			break;
-		case "04":
-			$mesAbreviado = "Abr";
-			break;
-		case "05":
-			$mesAbreviado = "Mai";
-			break;
-		case "06":
-			$mesAbreviado = "Jun";
-			break;
-		case "07":
-			$mesAbreviado = "Jul";
-			break;
-		case "08":
-			$mesAbreviado = "Ago";
-			break;
-		case "09":
-			$mesAbreviado = "Set";
-			break;
-		case "10":
-			$mesAbreviado = "Out";
-			break;
-		case "11":
-			$mesAbreviado = "Nov";
-			break;
-		case "12":
-			$mesAbreviado = "Dez";
-			break;
+function mesAbreviado($mes) {
+	switch($mes) {
+		case"01": $mesAbreviado = "Jan";
+		break;
+		case"02": $mesAbreviado = "Fev"; 
+		break;
+		case"03": $mesAbreviado = "Mar";   
+		break;
+		case"04": $mesAbreviado = "Abr";  
+		break;
+		case"05": $mesAbreviado = "Mai";  
+		break;
+		case"06": $mesAbreviado = "Jun";   
+		break;
+		case"07": $mesAbreviado = "Jul";  
+		break;
+		case"08": $mesAbreviado = "Ago";  
+		break;
+		case"09": $mesAbreviado = "Set";  
+		break;
+		case"10": $mesAbreviado = "Out";  
+		break;
+		case"11": $mesAbreviado = "Nov";  
+		break;
+		case"12": $mesAbreviado = "Dez";  
+		break;
 	}
 	return "$mesAbreviado";
 }
 
-function diff_datas($inicio, $final)
-{
+function diff_datas($inicio, $final){
 	$inicio = explode("/", $inicio);
 	$final = explode("/", $final);
 	$timeInicio = mktime(0, 0, 0, $inicio[1], $inicio[0], $inicio[2]);
@@ -294,62 +217,63 @@ function diff_datas($inicio, $final)
 	$intervalo = (int)floor($intervalo / (60 * 60 * 24));
 
 	return $intervalo;
+}function _geraURL($str, $replace=array(), $delimiter='-') {
+    setlocale(LC_ALL, 'en_US.UTF8');
+    if( !empty($replace) ) {
+        $str = str_replace((array)$replace, ' ', $str);
+    }
+ 
+    $clean = iconv('UTF-8', 'ASCII//TRANSLIT', $str);
+    $clean = preg_replace("/[^a-zA-Z0-9\/_|+ -]/", '', $clean);
+    $clean = strtolower(trim($clean, '-'));
+    $clean = preg_replace("/[\/_|+ -]+/", $delimiter, $clean);
+ 
+    return $clean;
 }
 
-function _geraURL($str, $replace = array(), $delimiter = '-')
-{
-	setlocale(LC_ALL, 'en_US.UTF8');
-	if (!empty($replace)) {
-		$str = str_replace((array)$replace, ' ', $str);
-	}
+function _gera_senha($tamanho, $maiuscula, $minuscula, $numeros, $codigos) {
+    $maius = "ABCDEFGHIJKLMNOPQRSTUWXYZ";
+    $minus = "abcdefghijklmnopqrstuwxyz";
+    $numer = "0123456789";
+    $codig = '!@#$%&*()-+.,;?{[}]^><:|';
 
-	$clean = iconv('UTF-8', 'ASCII//TRANSLIT', $str);
-	$clean = preg_replace("/[^a-zA-Z0-9\/_|+ -]/", '', $clean);
-	$clean = strtolower(trim($clean, '-'));
-	$clean = preg_replace("/[\/_|+ -]+/", $delimiter, $clean);
+    $base  = '';
+    $base .= ($maiuscula) ? $maius : '';
+    $base .= ($minuscula) ? $minus : '';
+    $base .= ($numeros) ? $numer : '';
+    $base .= ($codigos) ? $codig : '';
 
-	return $clean;
+    srand((float) microtime() * 10000000);
+
+    $senha = '';
+
+    for ($i = 0; $i < $tamanho; $i++) {
+            $senha .= substr($base, rand(0, strlen($base)-1), 1);
+    }
+
+    return $senha;
 }
 
-function _gera_senha($tamanho, $maiuscula, $minuscula, $numeros, $codigos)
-{
-	$maius = "ABCDEFGHIJKLMNOPQRSTUWXYZ";
-	$minus = "abcdefghijklmnopqrstuwxyz";
-	$numer = "0123456789";
-	$codig = '!@#$%&*()-+.,;?{[}]^><:|';
-
-	$base  = '';
-	$base .= ($maiuscula) ? $maius : '';
-	$base .= ($minuscula) ? $minus : '';
-	$base .= ($numeros) ? $numer : '';
-	$base .= ($codigos) ? $codig : '';
-
-	srand((float) microtime() * 10000000);
-
-	$senha = '';
-
-	for ($i = 0; $i < $tamanho; $i++) {
-		$senha .= substr($base, rand(0, strlen($base) - 1), 1);
-	}
-
-	return $senha;
-}
-
-function limitarTexto($texto, $limite)
-{
+function limitarTexto($texto, $limite){
 	$contador = strlen($texto);
-	if ($contador >= $limite) {
+	if ($contador >= $limite){      
 		$texto = substr($texto, 0, strrpos(substr($texto, 0, $limite), ' ')) . '...';
 		return $texto;
-	} else {
+	}else{
 		return $texto;
 	}
 }
 
-function senhaValida($senha)
-{
-	return preg_match('/[a-z]/', $senha) && preg_match('/[A-Z]/', $senha) && preg_match('/[0-9]/', $senha) && preg_match('/^[\w$@]{8,}$/', $senha);
+function senhaValida($senha) {
+    return preg_match('/[a-z]/', $senha) && preg_match('/[A-Z]/', $senha) && preg_match('/[0-9]/', $senha) && preg_match('/^[\w$@]{8,}$/', $senha);
 }
 
+function htmltransform($string = null){
+	if(empty($string)){
+		return null;
+	}else{
+		return htmlentities($string);
+	}
+}
 
-require_once ABSPATH . '/functions/minio-functions.php';
+?>

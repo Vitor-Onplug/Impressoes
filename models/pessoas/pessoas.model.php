@@ -12,6 +12,7 @@ class PessoasModel extends MainModel {
 	private $dataNascimento;
 	private $observacoes;
 	private $avatar;
+	private $idEmpresa;
 	
 	private $erro;
 
@@ -42,6 +43,8 @@ class PessoasModel extends MainModel {
 		$this->genero = isset($_POST["genero"]) ? $_POST["genero"] : null;
 		$this->dataNascimento = isset($_POST["dataNascimento"]) ? $_POST["dataNascimento"] : null;
 		$this->avatar = isset($_POST["diretorioAvatar"]) ? $_POST["diretorioAvatar"] : null;
+		$this->observacoes = isset($_POST["observacoes"]) ? $_POST["observacoes"] : null;
+		$this->idEmpresa = isset($_POST["idEmpresa"]) ? $_POST["idEmpresa"] : null;
 		
 		$validaPessoa = $this->ClassePessoa->validarPessoa($this->nome, $this->sobrenome, $this->apelido, $this->genero, $this->dataNascimento, $this->observacoes);
 		
@@ -52,6 +55,7 @@ class PessoasModel extends MainModel {
 		$this->form_data['dataNascimento'] = trim($this->dataNascimento);
 		$this->form_data['observacoes'] = trim($this->observacoes);
 		$this->form_data['avatar'] = trim($this->avatar);
+		$this->form_data['idEmpresa'] = trim($this->idEmpresa);
 		
 		if($validaPessoa != 1){
 			$this->erro .= $validaPessoa;

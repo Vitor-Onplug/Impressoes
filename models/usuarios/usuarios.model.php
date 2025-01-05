@@ -10,6 +10,7 @@ class UsuariosModel extends MainModel
 	private $senhaAtual;
 	private $senha;
 	private $email;
+	private $idEmpresa;
 
 	private $ClassePessoa;
 	private $ClasseEmail;
@@ -41,6 +42,7 @@ class UsuariosModel extends MainModel
 		$this->idPessoa = !empty(chk_array($this->parametros, 1)) ? (int) chk_array($this->parametros, 1) : null;
 		$this->permissao = isset($_POST["permissao"]) ? $_POST["permissao"] : null;
 		$this->senha = isset($_POST["senha"]) ? $_POST["senha"] : null;
+		$this->idEmpresa = isset($_POST["idEmpresa"]) ? $_POST["idEmpresa"] : null;
 
 		$emails = $this->ClasseEmail->getEmails($this->idPessoa);
 
@@ -75,6 +77,7 @@ class UsuariosModel extends MainModel
 		$this->form_data['idPessoa'] = $this->idPessoa;
 		$this->form_data['permissao'] = $this->permissao;
 		$this->form_data['senha'] = $this->senha;
+		$this->form_data['idEmpresa'] = $this->idEmpresa;
 
 		if (!empty($this->erro)) {
 			$this->form_msg = $this->controller->Messages->error('<strong>Os seguintes erros foram encontrados:</strong>' . $this->erro);
@@ -115,7 +118,7 @@ class UsuariosModel extends MainModel
 		}
 
 		if (!empty(chk_array($this->form_data, 'permissao'))) {
-			$query = $this->db->update('tblUsuario', 'idPessoa', $idPessoa, array('idPermissao' => chk_array($this->form_data, 'permissao'), 'senha' => chk_array($this->form_data, 'senha')));
+			$query = $this->db->update('tblUsuario', 'idPessoa', $idPessoa, array('idPermissao' => chk_array($this->form_data, 'permissao'), 'senha' => chk_array($this->form_data, 'senha'), 'idEmpresa' => chk_array($this->form_data, 'idEmpresa')));
 		} else {
 			$query = $this->db->update('tblUsuario', 'idPessoa', $idPessoa, array('senha' => chk_array($this->form_data, 'senha')));
 		}
@@ -132,7 +135,7 @@ class UsuariosModel extends MainModel
 
 	private function adicionarUsuario()
 	{
-		$query = $this->db->insert('tblUsuario', array('idPessoa' => chk_array($this->form_data, 'idPessoa'), 'idPermissao' => chk_array($this->form_data, 'permissao'), 'senha' => chk_array($this->form_data, 'senha'), 'status' => 'T'));
+		$query = $this->db->insert('tblUsuario', array('idPessoa' => chk_array($this->form_data, 'idPessoa'), 'idPermissao' => chk_array($this->form_data, 'permissao'), 'senha' => chk_array($this->form_data, 'senha'), 'status' => 'T', 'idEmpresa' => chk_array($this->form_data, 'idEmpresa')));
 
 		if (!$query) {
 			$this->form_msg = $this->controller->Messages->error('Erro interno: Os dados não foram enviados.');

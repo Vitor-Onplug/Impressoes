@@ -68,9 +68,10 @@ class EmpresasModel extends MainModel {
 	}
 	
 	private function editarEmpresa(){
-		if(is_numeric(chk_array($this->parametros, 1))){
-			$this->id = chk_array($this->parametros, 1);
-		}
+		if (chk_array($this->parametros, 1)) {
+            $hash = chk_array($this->parametros, 1);
+            $this->id = decryptHash($hash);
+        }
 
 		$editaEmpresa = $this->ClasseEmpresa->editarEmpresa($this->id, chk_array($this->form_data, 'razaoSocial'), chk_array($this->form_data, 'nomeFantasia'), chk_array($this->form_data, 'observacoes'));
 			
@@ -96,8 +97,9 @@ class EmpresasModel extends MainModel {
 			$this->form_msg = $this->controller->Messages->error('Erro interno: Os dados não foram enviados.');
 		}else{
 			$this->form_msg = $this->controller->Messages->success('Registro cadastrado com sucesso. Aguarde, você será redirecionado...');
-			$this->form_msg .= '<meta http-equiv="refresh" content="2; url=' . HOME_URI . '/empresas/index/editar/'. $this->id . '">';
-			$this->form_msg .= '<script type="text/javascript">window.location.href = "' . HOME_URI . '/empresas/index/editar/'. $this->id . '";</script>';
+			$hash = encryptId($this->id);
+			$this->form_msg .= '<meta http-equiv="refresh" content="2; url=' . HOME_URI . '/empresas/index/editar/'. $hash . '">';
+			$this->form_msg .= '<script type="text/javascript">window.location.href = "' . HOME_URI . '/empresas/index/editar/'. $hash . '";</script>';
 			
 			$this->form_data = null;
 		}
@@ -126,6 +128,22 @@ class EmpresasModel extends MainModel {
 
 	public function getEmpresas($filtros = null){
 		return $this->ClasseEmpresa->getEmpresas($filtros);
+	}
+
+	public function getEmpresasParceiros($filtros = null){
+		$sql = "SELECT `tblEmpresa`.*, `tblParceiro`.`id` as `idParceiro`, `tblParceiro`.`idEmpresa` 
+		FROM `tblEmpresa` 
+		LEFT JOIN `tblParceiro` ON `tblEmpresa`.`id` = `tblParceiro`.`idEmpresa` 
+		WHERE `tblEmpresa`.`status` = 'T';
+		";
+
+        $query = $this->db->query($sql);
+
+        if (!$query) {
+            return array();
+        }
+
+        return $query->fetchAll();
 	}
 	
 	public function getAvatar($id = null, $tn = false){
@@ -162,14 +180,18 @@ class EmpresasModel extends MainModel {
 	public function bloquearEmpresa(){
 		$id = null;
 		
-		if(is_numeric(chk_array($this->parametros, 1))){
-			$id = chk_array($this->parametros, 1);
-		}
+		if (chk_array($this->parametros, 1)) {
+            $hash = chk_array($this->parametros, 1);
+            $id = decryptHash($hash);
+        }
 
 		if(!empty($id)){
 			$id = (int) $id;
 		
 			$query = $this->db->update('tblEmpresa', 'id', $id, array('status' => 'F'));
+
+			// Bloquear o parceiro vinculado a empresa
+			$query = $this->db->update('tblParceiro', 'idEmpresa', $id, array('status' => 'F'));
 			
 			$this->form_msg = $this->controller->Messages->success('Registro bloqueado com sucesso.');
 			$this->form_msg .= '<meta http-equiv="refresh" content="2; url=' . HOME_URI . '/empresas/">';
@@ -181,9 +203,10 @@ class EmpresasModel extends MainModel {
 	public function desbloquearEmpresa(){
 		$id = null;
 		
-		if(is_numeric(chk_array($this->parametros, 1))){
-			$id = chk_array($this->parametros, 1);
-		}
+		if (chk_array($this->parametros, 1)) {
+            $hash = chk_array($this->parametros, 1);
+            $id = decryptHash($hash);
+        }
 
 		if(!empty($id)){
 			$id = (int) $id;

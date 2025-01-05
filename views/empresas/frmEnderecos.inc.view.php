@@ -3,7 +3,12 @@ if(!defined('ABSPATH')) exit;
 
 $modeloEnderecos->validarFormEndereco();
 
-$enderecos = $modeloEnderecos->getEnderecosEmpresa(chk_array($parametros, 1));
+if (chk_array($this->parametros, 1)) {
+	$hash = chk_array($this->parametros, 1);
+	$id = decryptHash($hash);
+}
+
+$enderecos = $modeloEnderecos->getEnderecosEmpresa($id);
 
 if(chk_array($parametros, 3) == 'editar' || chk_array($parametros, 3) == 'remover' ){
 	if(empty(chk_array($parametros, 4)) || !is_numeric(chk_array($parametros, 4))){

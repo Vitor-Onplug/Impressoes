@@ -77,6 +77,7 @@ $pessoas = $modelo->getPessoas($filtros);
 									<th>Nome Social</th>
 									<th>Email</th>
 									<th>Telefone</th>
+									<th>Empresa Associada</th>
 									<th class="sorter-false">Opções</th>
 								</tr>
 							</thead>
@@ -96,6 +97,9 @@ $pessoas = $modelo->getPessoas($filtros);
 									<td>
 										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo $dados['id']; ?>"><?php echo $dados['telefone']; ?></a>
 									</td>								
+									<td>
+										<a href="<?php echo HOME_URI;?>/empresas/index/perfil/<?php echo encryptId($dados['empresaId']); ?>"><?php echo $dados['empresaNome']; ?></a>
+									</td>
 									<td>
 										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo $dados['id']; ?>" class="icon-tab" title="Perfil"><i class="fas fa-user "></i></a>&nbsp;
 										<a href="<?php echo HOME_URI; ?>/pessoas/index/editar/<?php echo $dados['id']; ?>" class="icon-tab" title="Editar"><i class="far fa-edit"></i></a>&nbsp;

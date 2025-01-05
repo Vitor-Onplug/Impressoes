@@ -83,19 +83,19 @@ $empresas = $modelo->getEmpresas($filtros);
                         <?php foreach ($empresas as $dados): ?>
                             <tr>
                                 <td>
-                                    <a href="<?php echo HOME_URI; ?>/empresas/index/perfil/<?php echo $dados['id']; ?>"><?php echo $dados['razaoSocial']; ?></a>
+                                    <a href="<?php echo HOME_URI; ?>/empresas/index/perfil/<?php echo encryptId($dados['id']); ?>"><?php echo $dados['razaoSocial']; ?></a>
                                 </td>
                                 <td>
-                                    <a href="<?php echo HOME_URI; ?>/empresas/index/perfil/<?php echo $dados['id']; ?>"><?php echo $dados['nomeFantasia']; ?></a>
+                                    <a href="<?php echo HOME_URI; ?>/empresas/index/perfil/<?php echo encryptId($dados['id']); ?>"><?php echo $dados['nomeFantasia']; ?></a>
                                 </td>
                                 <td>
-										<a href="<?php echo HOME_URI;?>/empresas/index/perfil/<?php echo $dados['id']; ?>" class="icon-tab" title="Perfil"><i class="fas fa-user "></i></a>&nbsp;
-										<a href="<?php echo HOME_URI; ?>/empresas/index/editar/<?php echo $dados['id']; ?>" class="icon-tab" title="Editar"><i class="far fa-edit"></i></a>&nbsp;
+										<a href="<?php echo HOME_URI;?>/empresas/index/perfil/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Perfil"><i class="fas fa-user "></i></a>&nbsp;
+										<a href="<?php echo HOME_URI; ?>/empresas/index/editar/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Editar"><i class="far fa-edit"></i></a>&nbsp;
 										
 										<?php if($dados['status'] == 'T'){ ?>
-										<a href="<?php echo HOME_URI;?>/empresas/index/bloquear/<?php echo $dados['id']; ?>" class="icon-tab" title="Bloquear"><i class="fas fa-unlock text-green"></i></a>&nbsp;
+										<a href="<?php echo HOME_URI;?>/empresas/index/bloquear/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Bloquear"><i class="fas fa-unlock text-green"></i></a>&nbsp;
 										<?php }else{ ?>
-										<a href="<?php echo HOME_URI;?>/empresas/index/desbloquear/<?php echo $dados['id']; ?>" class="icon-tab" title="Desbloquear"><i class="fas fa-lock text-red"></i></a>
+										<a href="<?php echo HOME_URI;?>/empresas/index/desbloquear/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Desbloquear"><i class="fas fa-lock text-red"></i></a>
 										<?php } ?>
 									</td>
                             </tr>

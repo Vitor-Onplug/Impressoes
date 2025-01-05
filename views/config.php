@@ -22,15 +22,15 @@ define('MAILER_Password', 'Kn@*daM[=e%b');
 define('MAILER_SMTPSecure', 'tls');
 define('MAILER_Port', '587');
 
-define('HOME_URI', 'https://impressoes.teste.me');
+define('HOME_URI', 'https://printmanager.onplug.com.br');
 
 define('HOSTNAME', 'localhost');
-define('DB_NAME', 'printManager');
-define('DB_USER', 'crede');
-define('DB_PASSWORD', 'crede@123');
+define('DB_NAME', 'onplug_printManager');
+define('DB_USER', 'onplug_printManager');
+define('DB_PASSWORD', '@onplugt1');
 define('DB_CHARSET', 'utf8');
 
-define('HASH_KEY', 'crede@123');
+define('HASH_KEY', 'onplug');
 
 define('DEBUG', true);
 

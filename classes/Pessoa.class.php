@@ -10,6 +10,7 @@ class Pessoa {
 	private $dataNascimento;
 	private $observacoes;
 	private $avatar;
+	private $idEmpresa;
 	
 	private $erro;
 	
@@ -17,13 +18,14 @@ class Pessoa {
 		$this->db = $db;
 	}
 
-	public function validarPessoa($nome = null, $sobrenome = null, $apelido = null, $genero = null, $dataNascimento = null, $observacoes = null){ 
+	public function validarPessoa($nome = null, $sobrenome = null, $apelido = null, $genero = null, $dataNascimento = null, $observacoes = null, $idEmpresa = null){
 		$this->nome = $nome;
 		$this->sobrenome = $sobrenome;
 		$this->apelido = $apelido;
 		$this->genero = $genero;
 		$this->dataNascimento = $dataNascimento;
 		$this->observacoes = $observacoes;
+		$this->idEmpresa = $idEmpresa;
 		
 		if(empty($this->nome)){ $this->erro .= "<br>Preencha o nome."; }
 		if(!empty($this->nome)){
@@ -50,7 +52,7 @@ class Pessoa {
 		return true;
 	}
 	
-	public function editarPessoa($id = null, $nome = null, $sobrenome = null, $apelido = null, $genero = null, $dataNascimento = null, $observacoes = null){
+	public function editarPessoa($id = null, $nome = null, $sobrenome = null, $apelido = null, $genero = null, $dataNascimento = null, $observacoes = null, $idEmpresa = null){
 		if(empty($id) && empty($nome) && empty($sobrenome) && empty($apelido) && empty($genero)){
 			return false;
 		}
@@ -62,8 +64,10 @@ class Pessoa {
 		$this->genero = $genero;
 		$this->dataNascimento = implode("-", array_reverse(explode("/", $this->dataNascimento)));
 		$this->observacoes = $observacoes;
+		$this->idEmpresa = $idEmpresa;
 
-		$query = $this->db->update('tblPessoa', 'id', $this->id, array('nome' => $this->nome, 'sobrenome' => $this->sobrenome, 'apelido' => $this->apelido, 'genero' => $this->genero, 'dataNascimento' => $this->dataNascimento, 'observacoes' => $this->observacoes));
+
+		$query = $this->db->update('tblPessoa', 'id', $this->id, array('nome' => $this->nome, 'sobrenome' => $this->sobrenome, 'apelido' => $this->apelido, 'genero' => $this->genero, 'dataNascimento' => $this->dataNascimento, 'observacoes' => $this->observacoes, 'idEmpresa' => $this->idEmpresa));
 			
 		if(!$query){
 			return false;
@@ -72,7 +76,7 @@ class Pessoa {
 		return $query;
 	}
 	
-	public function adicionarPessoa($nome = null, $sobrenome = null, $apelido = null, $genero = null, $dataNascimento = null, $observacoes = null){
+	public function adicionarPessoa($nome = null, $sobrenome = null, $apelido = null, $genero = null, $dataNascimento = null, $observacoes = null, $idEmpresa = null){
 		if(empty($nome) && empty($sobrenome) && empty($apelido) && empty($genero) && empty($dataNascimento)){
 			return false;
 		}
@@ -83,6 +87,7 @@ class Pessoa {
 		$this->genero = $genero;
 		$this->dataNascimento = implode("-", array_reverse(explode("/", $this->dataNascimento)));
 		$this->observacoes = $observacoes;
+		$this->idEmpresa = $idEmpresa;
 		
 		$query = $this->db->insert('tblPessoa', array('nome' => $this->nome, 'sobrenome' => $this->sobrenome, 'apelido' => $this->apelido, 'genero' => $this->genero, 'dataNascimento' => $this->dataNascimento, 'observacoes' => $this->observacoes));
 		
@@ -159,12 +164,14 @@ class Pessoa {
 			$oderby = "ORDER BY `tblPessoa`.`nome`, `tblPessoa`.`sobrenome`";
 		}
 		
-		$sql = "SELECT `tblPessoa`.*, `tblEmail`.`email`, `tblTelefone`.`telefone`
+		$sql = "SELECT `tblPessoa`.*, `tblEmail`.`email`, `tblTelefone`.`telefone`, `tblEmpresa`.`razaoSocial` as empresaNome, `tblEmpresa`.`id` as empresaId 
 		 FROM `tblPessoa` ";
 		$sql .= "LEFT JOIN `tblDocumento` ON (`tblDocumento`.`idPessoa` = `tblPessoa`.`id`) ";
 		$sql .= "LEFT JOIN `tblEmail` ON (`tblEmail`.`idPessoa` = `tblPessoa`.`id`) ";
 		$sql .= "LEFT JOIN `tblEndereco` ON (`tblEndereco`.`idPessoa` = `tblPessoa`.`id`) ";
 		$sql .= "LEFT JOIN `tblTelefone` ON (`tblTelefone`.`idPessoa` = `tblPessoa`.`id`) ";
+		$sql .= "LEFT JOIN `tblUsuario` ON (`tblUsuario`.`idPessoa` = `tblPessoa`.`id`) ";
+		$sql .= "LEFT JOIN `tblEmpresa` ON (`tblEmpresa`.`id` = `tblUsuario`.`idEmpresa`) ";
 		$sql .= "$where GROUP BY `tblPessoa`.`id` $oderby $limit";
 		
 		$query = $this->db->query($sql);

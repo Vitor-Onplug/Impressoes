@@ -2,6 +2,7 @@
 if(!defined('ABSPATH')) exit;
 
 $modelo->validarFormEmpresa();
+
 ?>
 
 			<section class="content">

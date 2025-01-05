@@ -32,6 +32,9 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 	<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css">
 
 	<script src="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/jquery/jquery.min.js"></script>
+
+	<!-- Toastr -->
+	<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/toastr/toastr.min.css">
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -43,25 +46,6 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 				</li>
 			</ul>
 
-			<!-- SELECT PARA SELECIONAR UM OUTRO EVENTO -->
-			<?php
-			$idEventoHash = isset($_SESSION['idEventoHash']) ? $_SESSION['idEventoHash'] : null;
-			if ($idEventoHash !== null) {
-				$idEvento = decryptHash($idEventoHash);
-				$modeloEvento = $this->load_model('eventos/eventos');
-				$eventos = $modeloEvento->getEventos();
-			?>
-				<div class="form-inline mx-2">
-					<label class="mr-2" for="selectEvento">Evento Atual:</label>
-					<select class="form-control select2-search" id="selectEvento" name="selectEvento" style="width: 250px;">
-						<?php foreach ($eventos as $evento) : ?>
-							<option value="<?= $evento['idEvento'] ?>" <?= $evento['idEvento'] == $idEvento ? 'selected' : '' ?>>
-								<?= $evento['evento'] ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-			<?php } ?>
 
 			<ul class="navbar-nav ml-auto">
 				<li class="nav-item">
@@ -110,76 +94,90 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 																			} ?>"><i class="nav-icon fas fa-tachometer-alt"></i>
 								<p>Dashboard</p>
 							</a></li>
-						<?php if ($this->check_permissions('evento-adicionar', $this->userdata['modulo'])) { ?>
-							<li class="nav-item"><a href="./" class="nav-link <?php if (!isset($activePage[0])) {
-																					echo 'active';
-																				} ?>"><i class="nav-icon fas fa-tachometer-alt"></i>
-									<p>Dashboard</p>
-								</a></li>
-						<?php } ?>
 
-						<li class="nav-item">
-							<a href="#" class="nav-link"><i class="nav-icon fas fa-calendar-alt"></i>
-								<p>Eventos <i class="right fas fa-angle-left"></i></p>
+						<!-- Impressoras -->
+						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras') {
+												echo 'menu-open';
+											} ?>">
+							<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras') {
+															echo 'active';
+														} ?>"><i class="fa-solid fa-laptop-file"></i>
+								<p>Impressoras <i class="right fas fa-angle-left"></i></p>
 							</a>
 							<ul class="nav nav-treeview">
-								<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'eventos' && $activePage[2] != 'adicionar') {
-														echo 'active';
-													} ?>"><a href="<?php echo HOME_URI; ?>/eventos" class="nav-link"><i class="far fa-calendar nav-icon"></i>
-										<p>Eventos</p>
+								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/impressoras" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras' && !isset($activePage[2])) {
+																														echo 'active';
+																													} ?>"><i class="far fa-calendar nav-icon"></i>
+										<p>Impressoras</p>
 									</a></li>
-								<?php //if($this->check_permissions('evento-adicionar', $this->userdata['modulo'])){
+								<?php //if ($this->check_permissions('impressora-adicionar', $this->userdata['modulo'])) { 
 								?>
-								<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'eventos' && $activePage[2] == 'adicionar') {
-														echo 'active';
-													} ?>"><a href="<?php echo HOME_URI; ?>/eventos/index/adicionar" class="nav-link"><i class="far fa-calendar-plus nav-icon"></i>
+								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/impressoras/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras' && (isset($activePage[2]) && $activePage[2] == 'adicionar')) {
+																																		echo 'active';
+																																	} ?>"><i class="far fa-calendar-plus nav-icon"></i>
 										<p>Adicionar</p>
 									</a></li>
-								<?php //} 
+								<?php // } 
 								?>
 							</ul>
 						</li>
+						<!-- Fim Impressoras -->
 
-						<?php
-						$modeloEvento = $this->load_model('eventos/eventos');
-						$idEventoHash = isset($_SESSION['idEventoHash']) ? $_SESSION['idEventoHash'] : null;
-						if ($idEventoHash !== null) {
-							$idEvento = decryptHash($idEventoHash);
-							$evento = $modeloEvento->getEvento($idEvento);
-						?>
-							<li class="nav-item">
-								<a href="#" class="nav-link"><i class="nav-icon fa-solid fa-eye"></i>
-									<p>Evento <?php echo htmlentities(chk_array($modeloEvento->form_data, 'evento')); ?> <i class="right fas fa-angle-left"></i></p>
-								</a>
-								<ul class="nav nav-treeview">
-									<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'eventos' && $activePage[2] == 'setores') {
+						<!-- Impressoes -->
+						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'impressoes') {
+												echo 'menu-open';
+											} ?>">
+							<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoes') {
 															echo 'active';
-														} ?>"><a href="<?php echo HOME_URI; ?>/eventos/index/setores" class="nav-link"><i class="fas fa-map-marker nav-icon"></i>
-											<p>Setores</p>
-										</a></li>
-									<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'eventos' && $activePage[2] == 'terminais') {
+														} ?>"><i class="nav-icon fas fa-print"></i>
+								<p>Impressões <i class="right fas fa-angle-left"></i></p>
+							</a>
+							<ul class="nav nav-treeview">
+								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/impressoes" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoes' && !isset($activePage[2])) {
+																														echo 'active';
+																													} ?>"><i class="far fa-calendar nav-icon"></i>
+										<p>Impressões</p>
+									</a></li>
+							</ul>
+						</li>
+						<!-- Fim Impressoes -->
+
+						<!-- Relatórios -->
+						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios') {
+												echo 'menu-open';
+											} ?>">
+							<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios') {
 															echo 'active';
-														} ?>"><a href="<?php echo HOME_URI; ?>/eventos/index/terminais" class="nav-link"><i class="fab fa-raspberry-pi nav-icon"></i>
-											<p>Terminais</p>
-										</a></li>
-									<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'eventos' && $activePage[2] == 'leitores') {
-															echo 'active';
-														} ?>"><a href="<?php echo HOME_URI; ?>/eventos/index/leitores" class="nav-link"><i class="fas fa-qrcode nav-icon"></i>
-											<p>Leitores</p>
-										</a></li>
-									<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'eventos' && $activePage[2] == 'lotes') {
-															echo 'active';
-														} ?>"><a href="<?php echo HOME_URI; ?>/eventos/index/lotes" class="nav-link"><i class="fas fa-id-card nav-icon"></i>
-											<p>Lotes de Credenciais</p>
-										</a></li>
-									<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'eventos' && $activePage[2] == 'ingressos') {
-															echo 'active';
-														} ?>"><a href="<?php echo HOME_URI; ?>/eventos/index/ingressos" class="nav-link"><i class="fas fa-ticket-alt nav-icon"></i>
-											<p>Ingressos</p>
-										</a></li>
-								</ul>
-							</li>
-						<?php } ?>
+														} ?>"><i class="nav-icon fas fa-chart-pie"></i>
+								<p>Relatórios <i class="right fas fa-angle-left"></i></p>
+							</a>
+							<ul class="nav nav-treeview">
+								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/relatorios/index/porUsuario" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porUsuario') {
+																																		echo 'active';
+																																	} ?>"><i class="fa-solid fa-user"></i>
+										<p>Por Usuário</p>
+									</a></li>
+
+								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/relatorios/index/porImpressora" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porImpressora') {
+																																			echo 'active';
+																																		} ?>"><i class="fa-solid fa-tachograph-digital"></i>
+										<p>Por Impressora</p>
+									</a></li>
+
+								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/relatorios/index/porEstacao" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porEstacao') {
+																																		echo 'active';
+																																	} ?>"><i class="fa-solid fa-computer"></i>
+										<p>Por Estação</p>
+									</a></li>
+
+								<li class="nav-item"><a href="<?php echo HOME_URI; ?>/relatorios/index/porMes" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'relatorios' && isset($activePage[2]) && $activePage[2] == 'porMes') {
+																																	echo 'active';
+																																} ?>"><i class="fa-solid fa-calendar-day"></i>
+										<p>Por Mês</p>
+									</a></li>
+							</ul>
+
+						</li>
 
 						<li class="nav-item">
 							<a href="#" class="nav-link"><i class="nav-icon fas fa-user"></i>
@@ -328,30 +326,12 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 	<script src="<?php echo HOME_URI; ?>/views/standards/javascripts/cep.js"></script>
 	<script src="<?php echo HOME_URI; ?>/views/standards/javascripts/app.js"></script>
 
-	<script>
-		$(document).ready(function() {
+	<!-- Toastr -->
+	<script src="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/toastr/toastr.min.js"></script>
 
-			// Inicializa o Select2 no campo de evento
-			$('#selectEvento').select2({
-				theme: "classic"
+	<!-- ChartJS -->
+	<script src="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/chart.js/Chart.min.js"></script>
 
-			});
-
-			$('#selectEvento').change(function() {
-				var idEvento = $(this).val();
-				$.ajax({
-					url: '<?php echo HOME_URI; ?>/eventos/index/setEvento',
-					type: 'POST',
-					data: {
-						idEvento: idEvento
-					},
-					success: function(data) {
-						location.reload();
-					}
-				});
-			});
-		});
-	</script>
 </body>
 
 </html>
