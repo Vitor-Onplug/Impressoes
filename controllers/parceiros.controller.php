@@ -32,9 +32,8 @@ class ParceirosController extends MainController
         } elseif (chk_array($this->parametros, 0) == 'setParceiro') {
             $idPost = isset($_POST['idParceiro']) ? $_POST['idParceiro'] : 0;
             $hash = encryptId($idPost);
-            if ($_SESSION['idParceiroHash'] != $hash) {
-                $_SESSION['idParceiroHash'] = $hash;
-            }
+            $_SESSION['idParceiroHash'] = $hash;
+
             $conteudo = ABSPATH . '/views/dashboard/dashboard.view.php';
         } else {
             $conteudo = ABSPATH . '/views/parceiros/parceiros.view.php';
