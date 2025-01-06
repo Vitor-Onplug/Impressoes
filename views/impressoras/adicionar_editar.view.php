@@ -108,6 +108,9 @@ $departamentos = $modelo->getDepartamentos();
                         </div>
                     </div>
 
+                    <!-- idEmpresa hidden -->
+                    <input type="hidden" name="idEmpresa" value="<?php echo $_SESSION['userdata']['idEmpresa']; ?>">
+
                     <!-- Modelo e Descrição -->
                     <div class="form-group">
                         <label for="modelo">Modelo</label>

@@ -12,7 +12,7 @@ class PessoasModel extends MainModel {
 	private $dataNascimento;
 	private $observacoes;
 	private $avatar;
-	private $idEmpresa;
+
 	
 	private $erro;
 
@@ -44,7 +44,7 @@ class PessoasModel extends MainModel {
 		$this->dataNascimento = isset($_POST["dataNascimento"]) ? $_POST["dataNascimento"] : null;
 		$this->avatar = isset($_POST["diretorioAvatar"]) ? $_POST["diretorioAvatar"] : null;
 		$this->observacoes = isset($_POST["observacoes"]) ? $_POST["observacoes"] : null;
-		$this->idEmpresa = isset($_POST["idEmpresa"]) ? $_POST["idEmpresa"] : null;
+	
 		
 		$validaPessoa = $this->ClassePessoa->validarPessoa($this->nome, $this->sobrenome, $this->apelido, $this->genero, $this->dataNascimento, $this->observacoes);
 		
@@ -55,7 +55,6 @@ class PessoasModel extends MainModel {
 		$this->form_data['dataNascimento'] = trim($this->dataNascimento);
 		$this->form_data['observacoes'] = trim($this->observacoes);
 		$this->form_data['avatar'] = trim($this->avatar);
-		$this->form_data['idEmpresa'] = trim($this->idEmpresa);
 		
 		if($validaPessoa != 1){
 			$this->erro .= $validaPessoa;
@@ -83,10 +82,10 @@ class PessoasModel extends MainModel {
 	}
 	
 	private function editarPessoa(){
-		if(is_numeric(chk_array($this->parametros, 1))){
-			$this->id = chk_array($this->parametros, 1);
-		}
 
+		$hash = chk_array($this->parametros, 1);
+		$this->id = decryptHash($hash);
+	
 		$editaPessoa = $this->ClassePessoa->editarPessoa($this->id, chk_array($this->form_data, 'nome'), chk_array($this->form_data, 'sobrenome'), chk_array($this->form_data, 'apelido'), chk_array($this->form_data, 'genero'), chk_array($this->form_data, 'dataNascimento'), chk_array($this->form_data, 'observacoes'));
 			
 		if(!$editaPessoa){
@@ -177,10 +176,12 @@ class PessoasModel extends MainModel {
 	
 	public function bloquearPessoa(){
 		$id = null;
+
+        if (chk_array($this->parametros, 1)) {
+            $hash = chk_array($this->parametros, 1);
+            $id = decryptHash($hash);
+        }
 		
-		if(is_numeric(chk_array($this->parametros, 1))){
-			$id = chk_array($this->parametros, 1);
-		}
 
 		if(!empty($id)){
 			$id = (int) $id;
@@ -196,10 +197,11 @@ class PessoasModel extends MainModel {
 	
 	public function desbloquearPessoa(){
 		$id = null;
-		
-		if(is_numeric(chk_array($this->parametros, 1))){
-			$id = chk_array($this->parametros, 1);
-		}
+
+        if (chk_array($this->parametros, 1)) {
+            $hash = chk_array($this->parametros, 1);
+            $id = decryptHash($hash);
+        }
 
 		if(!empty($id)){
 			$id = (int) $id;

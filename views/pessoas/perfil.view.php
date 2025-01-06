@@ -2,24 +2,24 @@
 if(!defined('ABSPATH')) exit; 
 
 if(empty(chk_array($parametros, 1))){
-	$parametros[1] = chk_array($this->userdata, 'idUsuario');
+	$idPessoa = chk_array($this->userdata, 'id');
 }else{
-	$parametros[1] = chk_array($parametros, 1);
+	$hash = chk_array($parametros, 1);
+	$idPessoa = decryptHash($hash);
 }
 
-if(!empty(chk_array($parametros, 1)) && !is_numeric(chk_array($parametros, 1))){
+if(empty($idPessoa)){
 	echo '<meta http-equiv="refresh" content="0; url=' . HOME_URI . '/pessoas">';
 	echo '<script type="text/javascript">window.location.href = "' . HOME_URI . '/pessoas";</script>';
-	
 	exit;
 }
 
-$modelo->getPessoa(chk_array($parametros, 1));
+$modelo->getPessoa($idPessoa);
 
-$documentos = $modeloDocumentos->getDocumentos(chk_array($parametros, 1));
-$emails = $modeloEmails->getEmails(chk_array($parametros, 1));
-$enderecos = $modeloEnderecos->getEnderecos(chk_array($parametros, 1));
-$telefones = $modeloTelefones->getTelefones(chk_array($parametros, 1));
+$documentos = $modeloDocumentos->getDocumentos($idPessoa);
+$emails = $modeloEmails->getEmails($idPessoa);
+$enderecos = $modeloEnderecos->getEnderecos($idPessoa);
+$telefones = $modeloTelefones->getTelefones($idPessoa);
 ?>
 		<div class="content-wrapper">
 			<section class="content-header">

@@ -67,7 +67,7 @@ class Pessoa {
 		$this->idEmpresa = $idEmpresa;
 
 
-		$query = $this->db->update('tblPessoa', 'id', $this->id, array('nome' => $this->nome, 'sobrenome' => $this->sobrenome, 'apelido' => $this->apelido, 'genero' => $this->genero, 'dataNascimento' => $this->dataNascimento, 'observacoes' => $this->observacoes, 'idEmpresa' => $this->idEmpresa));
+		$query = $this->db->update('tblPessoa', 'id', $this->id, array('nome' => $this->nome, 'sobrenome' => $this->sobrenome, 'apelido' => $this->apelido, 'genero' => $this->genero, 'dataNascimento' => $this->dataNascimento, 'observacoes' => $this->observacoes));
 			
 		if(!$query){
 			return false;

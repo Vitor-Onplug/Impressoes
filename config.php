@@ -13,6 +13,7 @@ define('SYS_YEAR', '2024');
 define('SYS_LAT', '-23.503764');
 define('SYS_LNG', '-46.642383');
 
+date_default_timezone_set('America/Sao_Paulo');
 
 define('MAILER_FromName', 'Print Manager');
 define('MAILER_Host', 'localhost');

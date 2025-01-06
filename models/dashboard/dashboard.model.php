@@ -20,7 +20,7 @@ class DashboardModel extends MainModel
 
 	public function getDadosDashboard($idParceiro = 0)
 	{
-		var_dump($idParceiro);
+
 		// Total de Impressões
 		$queryTotalImpressao = $this->db->query("SELECT COUNT(*) as total FROM tblImpressoes WHERE idParceiro = ?", array($idParceiro));
 		$totalImpressao = $queryTotalImpressao->fetch()['total'];
@@ -53,7 +53,7 @@ class DashboardModel extends MainModel
         ORDER BY total DESC
         LIMIT 10
     ");
-	var_dump($queryUsuarios);
+
 		$usuarios = $queryUsuarios->fetchAll(PDO::FETCH_ASSOC);
 
 		// Impressões por Impressora

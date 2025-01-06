@@ -12,7 +12,7 @@ if (chk_array($this->parametros, 0) == 'bloquear') {
 if (chk_array($this->parametros, 0) == 'desbloquear') {
     $modelo->desbloquearImpressora();
 }
-
+var_dump($_SESSION);
 // Filtros para pesquisa
 $status = isset($_REQUEST["status"]) ? $_REQUEST["status"] : null;
 $q = isset($_REQUEST["q"]) ? $_REQUEST["q"] : null;

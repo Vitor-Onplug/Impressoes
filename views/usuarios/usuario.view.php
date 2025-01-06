@@ -2,16 +2,21 @@
 if (!defined('ABSPATH')) exit;
 
 // Verificar se o ID da pessoa é válido
-if (empty(chk_array($parametros, 1)) || !is_numeric(chk_array($parametros, 1))) {
+if (empty(chk_array($parametros, 1))) {
 	echo '<meta http-equiv="refresh" content="0; url=' . HOME_URI . '/pessoas/">';
 	echo '<script type="text/javascript">window.location.href = "' . HOME_URI . '/pessoas";</script>';
 	exit;
 }
 
-// Buscar os dados da pessoa
-$modelo->getPessoa(chk_array($parametros, 1));
+if (chk_array($this->parametros, 1)) {
+	$hash = chk_array($this->parametros, 1);
+	$id = decryptHash($hash);
+}
 
-if (preg_match('/(inexistente|encontrado)/simx', $modelo->form_msg)) {
+// Buscar os dados da pessoa
+$modelo->getPessoa($id);
+
+if ($modelo->form_msg && preg_match('/(inexistente|encontrado)/simx', $modelo->form_msg)) {
 	echo '<meta http-equiv="refresh" content="0; url=' . HOME_URI . '/pessoas">';
 	echo '<script type="text/javascript">window.location.href = "' . HOME_URI . '/pessoas";</script>';
 	exit;
@@ -19,7 +24,7 @@ if (preg_match('/(inexistente|encontrado)/simx', $modelo->form_msg)) {
 
 // Validar e processar o formulário de usuário
 $modeloUsuarios->validarFormUsuarios();
-$registro = $modeloUsuarios->getUsuario(null, chk_array($parametros, 1));
+$registro = $modeloUsuarios->getUsuario(null, $id);
 
 // Buscar permissões e empresas disponíveis
 $permissoes = $modeloPermissoes->getPermissoes();

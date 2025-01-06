@@ -86,30 +86,30 @@ $pessoas = $modelo->getPessoas($filtros);
 								<?php foreach($pessoas AS $dados): ?>
 								<tr>
 									<td>
-										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo $dados['id']; ?>"><?php echo $dados['nome']; ?> <?php echo $dados['sobrenome']; ?></a>
+										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo encryptId($dados['id']); ?>"><?php echo $dados['nome']; ?> <?php echo $dados['sobrenome']; ?></a>
 									</td>
 									<td>
-										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo $dados['id']; ?>"><?php echo $dados['apelido']; ?></a>
+										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo encryptId($dados['id']); ?>"><?php echo $dados['apelido']; ?></a>
 									</td>			
 									<td>
-										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo $dados['id']; ?>"><?php echo $dados['email']; ?></a>	
+										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo encryptId($dados['id']); ?>"><?php echo $dados['email']; ?></a>	
 									</td>
 									<td>
-										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo $dados['id']; ?>"><?php echo $dados['telefone']; ?></a>
+										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo encryptId($dados['id']); ?>"><?php echo $dados['telefone']; ?></a>
 									</td>								
 									<td>
 										<a href="<?php echo HOME_URI;?>/empresas/index/perfil/<?php echo encryptId($dados['empresaId']); ?>"><?php echo $dados['empresaNome']; ?></a>
 									</td>
 									<td>
-										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo $dados['id']; ?>" class="icon-tab" title="Perfil"><i class="fas fa-user "></i></a>&nbsp;
-										<a href="<?php echo HOME_URI; ?>/pessoas/index/editar/<?php echo $dados['id']; ?>" class="icon-tab" title="Editar"><i class="far fa-edit"></i></a>&nbsp;
+										<a href="<?php echo HOME_URI;?>/pessoas/index/perfil/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Perfil"><i class="fas fa-user "></i></a>&nbsp;
+										<a href="<?php echo HOME_URI; ?>/pessoas/index/editar/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Editar"><i class="far fa-edit"></i></a>&nbsp;
 										
-										<a href="<?php echo HOME_URI; ?>/pessoas/index/usuarios/<?php echo $dados['id']; ?>" class="icon-tab" title="Usuário"><i class="fa-solid fa-user-pen"></i></a>&nbsp;
+										<a href="<?php echo HOME_URI; ?>/pessoas/index/usuarios/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Usuário"><i class="fa-solid fa-user-pen"></i></a>&nbsp;
 										
 										<?php if($dados['status'] == 'T'){ ?>
-										<a href="<?php echo HOME_URI;?>/pessoas/index/bloquear/<?php echo $dados['id']; ?>" class="icon-tab" title="Bloquear"><i class="fas fa-unlock text-green"></i></a>&nbsp;
+										<a href="<?php echo HOME_URI;?>/pessoas/index/bloquear/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Bloquear"><i class="fas fa-unlock text-green"></i></a>&nbsp;
 										<?php }else{ ?>
-										<a href="<?php echo HOME_URI;?>/pessoas/index/desbloquear/<?php echo $dados['id']; ?>" class="icon-tab" title="Desbloquear"><i class="fas fa-lock text-red"></i></a>
+										<a href="<?php echo HOME_URI;?>/pessoas/index/desbloquear/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Desbloquear"><i class="fas fa-lock text-red"></i></a>
 										<?php } ?>
 									</td>
 								</tr>

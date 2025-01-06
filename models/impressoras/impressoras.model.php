@@ -12,6 +12,7 @@ class ImpressorasModel extends MainModel {
     private $descricao;
     private $status;
     private $idDepartamento;
+    private $idEmpresa;
     
     private $erro;
 
@@ -37,6 +38,7 @@ class ImpressorasModel extends MainModel {
         $this->modelo = isset($_POST["modelo"]) ? trim($_POST["modelo"]) : null;
         $this->ip = isset($_POST["ip"]) ? trim($_POST["ip"]) : null;
         $this->descricao = isset($_POST["descricao"]) ? trim($_POST["descricao"]) : null;
+        $this->idEmpresa = isset($_POST["idEmpresa"]) ? (int)$_POST["idEmpresa"] : null;
 
         // Validações
         if (empty($this->nome)) {
@@ -67,7 +69,8 @@ class ImpressorasModel extends MainModel {
             'idDepartamento' => $this->idDepartamento,
             'modelo' => $this->modelo,
             'ip' => $this->ip,
-            'descricao' => $this->descricao
+            'descricao' => $this->descricao,
+            'idEmpresa' => $this->idEmpresa
         );
 
         if (chk_array($this->parametros, 0) == 'editar') {
@@ -133,10 +136,15 @@ class ImpressorasModel extends MainModel {
             $where .= " AND (`tblImpressora`.`status` = '" . $filtros['status'] . "')";
         }
 
+        if(!empty($filtros["idParceiro"])) {
+            $where .= " AND `relParceiroEmpresa`.`idParceiro` = " . $filtros["idParceiro"];
+        }
+
         $orderby = "ORDER BY `tblImpressora`.`nome`";
 
         $sql = "SELECT `tblImpressora`.*, `tblMarcaImpressora`.`nome` AS marcaNome, `tblDepartamento`.`nome` AS departamentoNome
                 FROM `tblImpressora`
+                LEFT JOIN `relParceiroEmpresa` ON `tblImpressora`.`idEmpresa` = `relParceiroEmpresa`.`idEmpresa`
                 LEFT JOIN `tblMarcaImpressora` ON `tblImpressora`.`idMarca` = `tblMarcaImpressora`.`id`
                 LEFT JOIN `tblDepartamento` ON `tblImpressora`.`idDepartamento` = `tblDepartamento`.`id`
                 WHERE $where $orderby";
@@ -182,12 +190,13 @@ class ImpressorasModel extends MainModel {
     public function adicionarDepartamento() {
 
         $nome = isset($_POST["novoDepartamento"]) ? trim($_POST["novoDepartamento"]) : null;
+        $idEmpresaDepartamento = isset($_POST["idEmpresa"]) ? (int)$_POST["idEmpresa"] : null;
 
         if (empty($nome)) {
             return false;
         }
 
-        $query = $this->db->insert('tblDepartamento', array('nome' => $nome));
+        $query = $this->db->insert('tblDepartamento', array('nome' => $nome, 'idEmpresa' => $idEmpresaDepartamento));
 
         if ($query) {
            echo json_encode(['success' => true]);

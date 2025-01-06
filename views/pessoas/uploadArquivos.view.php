@@ -2,24 +2,13 @@
 if (!defined('ABSPATH')) exit;
 ?>
 
-<?php require_once ABSPATH . '/views/pessoas/mini-perfil.inc.view.php'; ?>
-
-<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/css/blueimp-gallery.min.css">
-<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/css/jquery.fileupload.css">
-<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/css/jquery.fileupload-ui.css">
-<noscript>
-    <link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/css/jquery.fileupload-noscript.css">
-</noscript>
-<noscript>
-    <link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/css/jquery.fileupload-ui-noscript.css">
-</noscript>
 
 <section class="content">
     <div class="card card-secondary">
         <div class="card-header">
             <h3 class="card-title">Arquivos</h3>
         </div>
-        <form id="fileupload" role="form" action="<?php echo HOME_URI; ?>/pessoas/upload/index/diversos/<?php echo chk_array($parametros, 1); ?>" method="POST" enctype="multipart/form-data">
+        <form id="fileupload" role="form" action="<?php echo HOME_URI; ?>/upload/pessoas/avatar/<?php echo chk_array($parametros, 1); ?>" method="POST" enctype="multipart/form-data">
             <div class="card-body">
                 <?php echo $modelo->form_msg; ?>
                 
@@ -166,17 +155,3 @@ if (!defined('ABSPATH')) exit;
 	});
 </script>
 
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/vendor/jquery.ui.widget.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/tmpl.min.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/load-image.all.min.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/canvas-to-blob.min.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.blueimp-gallery.min.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.iframe-transport.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload-process.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload-image.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload-audio.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload-video.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload-validate.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload-ui.js"></script>
-<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/main.js"></script>

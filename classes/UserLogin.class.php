@@ -98,6 +98,7 @@ class UserLogin {
 				session_regenerate_id();
 				$session_id = session_id();
 				
+				// Atribui os dados do usuário à variável de sessão
 				$_SESSION['userdata'] = $fetch;
 				
 				$_SESSION['userdata']['senha'] = $senha;
@@ -139,6 +140,9 @@ class UserLogin {
 		$_SESSION['userdata'] = array();
 		
 		unset($_SESSION['userdata']);
+
+		// Limpa a sessão
+		$_SESSION = array();
 		
 		session_regenerate_id();
 		

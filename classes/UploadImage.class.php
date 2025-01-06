@@ -65,7 +65,8 @@ class UploadImage {
 			return;
 		}
 
-		$this->filename = time() . '_' . strtolower($this->filename);
+		$info = pathinfo($this->filename);
+		$this->filename = $this->filename . '_' . date('Y-m-d_H-i-s') . '.' . $info['extension'];
 		$this->filename = preg_replace("#\\s+#", "_", $this->filename);
 
 		$this->cyr = array(
