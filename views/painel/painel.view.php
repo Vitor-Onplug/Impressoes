@@ -122,15 +122,19 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 				<span class="brand-text font-weight-light"><?php echo SYS_NAME; ?></span>
 			</a>
 
-			<?php $modeloUser = $this->load_model('pessoas/pessoas'); ?>
+			<?php
+			$modeloUser = $this->load_model('pessoas/pessoas');
+
+			?>
 
 			<div class="sidebar">
 				<div class="user-panel mt-3 pb-3 mb-3 d-flex">
 					<div class="image">
 						<img
-							src="<?php echo HOME_URI . '/' . $modeloUser->getAvatar($_SESSION['userdata']['id'], true); ?>"
+							src="<?php echo HOME_URI . '/' . $modeloUser->getAvatar($_SESSION['userdata']['id'], false); ?>"
 							class="img-circle elevation-2"
-							alt="User Image">
+							alt="User Image"
+							style="width: 35px; height: 35px; object-fit: cover;">
 					</div>
 					<div class="info">
 						<a href="<?php echo HOME_URI; ?>/pessoas/index/perfil/<?php echo $_SESSION['userdata']['id']; ?>" class="d-block text-center"><?php echo chk_array($this->userdata, 'nome'); ?> <?php echo chk_array($this->userdata, 'sobrenome'); ?></a>
@@ -345,8 +349,8 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 								<?php //} 
 								?>
 								<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/pessoas/index/perfil/<?php echo encryptId($_SESSION['userdata']['id']); ?>" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'usuarios' && isset($activePage[2]) && $activePage[2] == 'perfil' && $activePage[3] = null) {
-																																												echo 'active';
-																																											} ?>"><i class="fas fa-user nav-icon"></i>
+																																															echo 'active';
+																																														} ?>"><i class="fas fa-user nav-icon"></i>
 										<p>Seu Perfil</p>
 									</a></li>
 							</ul>

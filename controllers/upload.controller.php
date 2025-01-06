@@ -18,7 +18,7 @@
             $hash = chk_array($parametros, 1);
             $this->idElemento = decryptHash($hash);
 
-            if($this->idElemento == null){
+            if ($this->idElemento == null) {
                 return json_encode(['error' => 'ID inválido']);
             }
 
@@ -37,10 +37,20 @@
             $pessoa = json_decode(json_encode($this->modeloPessoas), true);
             $nomePessoa = $pessoa['form_data']['nome'];
 
+            $baseDir = UP_ABSPATH . '/pessoas/' . $this->idElemento . '-' . $nomePessoa;
+
             if (chk_array($parametros, 0) == 'avatar') {
-                $this->modeloUpload->avatar('pessoa', UP_ABSPATH . '/pessoas/' . $this->idElemento . '-' . $nomePessoa . '/imagens/avatar');
+                $uploadDir = $baseDir . '/imagens/avatar';
+        
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+                $this->modeloUpload->avatar('pessoa', $uploadDir);
             } else {
-                $this->modeloUpload->diversos('pessoa', UP_ABSPATH . '/pessoas/' . $this->idElemento . '-' . $nomePessoa);
+                if (!is_dir($baseDir)) {
+                    mkdir($baseDir, 0777, true);
+                }
+                $this->modeloUpload->diversos('pessoa', $baseDir);
             }
         }
 
@@ -52,10 +62,19 @@
             $empresa = json_decode(json_encode($this->modeloEmpresas), true);
             $nomeEmpresa = $empresa['form_data']['razaoSocial'];
 
+            $baseDir = UP_ABSPATH . '/empresas/' . $this->idElemento . '-' . $nomeEmpresa;
+
             if (chk_array($parametros, 0) == 'avatar') {
-                $this->modeloUpload->avatar('empresa', UP_ABSPATH . '/empresas/' . $this->idElemento . '-' . $nomeEmpresa . '/imagens/avatar');
+                if (!is_dir($baseDir . '/imagens/avatar')) {
+                    mkdir($baseDir . '/imagens/avatar', 0777, true);
+                    mkdir($baseDir . '/imagens/avatar/thumb', 0777, true);
+                }
+                $this->modeloUpload->avatar('empresa', $baseDir . '/imagens/avatar');
             } else {
-                $this->modeloUpload->diversos('empresa', UP_ABSPATH . '/empresas/' . $this->idElemento . '-' . $nomeEmpresa);
+                if (!is_dir($baseDir)) {
+                    mkdir($baseDir, 0777, true);
+                }
+                $this->modeloUpload->diversos('empresa', $baseDir);
             }
         }
     }

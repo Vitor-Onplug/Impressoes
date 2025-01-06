@@ -4,7 +4,7 @@ class UploadModel extends MainModel
     public $form_data;
     public $form_msg;
     public $db;
-
+    private $uploadHandler;
     private $erro;
 
     private $ClasseUploadFile;
@@ -21,152 +21,90 @@ class UploadModel extends MainModel
     }
 
     public function avatar($tipo = null, $diretorio = null)
-    {
-        if (!$tipo || !$diretorio) {
-            return json_encode(['error' => 'Parâmetros inválidos']);
-        }
-
-        // Validar e criar diretório se não existir
-        if (!file_exists($diretorio)) {
-            if (!mkdir($diretorio, 0777, true)) {
-                return json_encode(['error' => 'Erro ao criar diretório']);
-            }
-        }
-
-        // Validar se é uma imagem permitida
-        if (!$this->validarArquivoImagem()) {
-            return json_encode(['error' => 'Arquivo não é uma imagem válida']);
-        }
-
-        if (!isset($_FILES['midia'])) {
-            return json_encode(['error' => 'Nenhum arquivo enviado']);
-        }
-
-        $file = $_FILES['midia'];
-
-        // Configurar parâmetros para o UploadImage
-        $_REQUEST['main_path'] = $diretorio;
-        $_REQUEST['thumbnail_path'] = $diretorio . '/thumb';
-        $_REQUEST['resize_to'] = 800;
-        $_REQUEST['thumbnail_size'] = 150;
-        $_GET['filename'] = $file['name']; // Nome do arquivo original
-
-        // Criar o conteúdo no input
-        if (!@file_put_contents('php://input', file_get_contents($file['tmp_name']))) {
-            return json_encode(['error' => 'Erro ao processar arquivo']);
-        }
-
-        // Instanciar classe de upload
-        $uploadImage = new UploadImage();
-
-        // Verificar se o arquivo foi criado
-        $fullPath = $diretorio . '/' . $uploadImage->getFilename();
-        if (!file_exists($fullPath)) {
-            return json_encode(['error' => 'Erro ao salvar arquivo']);
-        }
-
-        return json_encode([
-            'success' => true,
-            'filename' => $uploadImage->getFilename(),
-            'path' => $fullPath,
-            'thumb' => $diretorio . '/thumb/' . $uploadImage->getFilename()
-        ]);
+{
+    if (!$tipo || !$diretorio) {
+        return json_encode(['error' => 'Parâmetros inválidos']);
     }
 
-    // Adicionar este método getter na classe UploadImage
-    public function getFilename()
-    {
-        return $this->filename;
+    // Garantir que os diretórios existam
+    if (!is_dir($diretorio)) {
+        mkdir($diretorio, 0777, true);
+    }
+    if (!is_dir($diretorio . '/thumb')) {
+        mkdir($diretorio . '/thumb', 0777, true);
     }
 
-    private function validarArquivoImagem()
-    {
-        if (!isset($_FILES["midia"])) {
-            return false;
+    $options = [
+        'upload_dir' => $diretorio . '/',
+        'upload_url' => str_replace(ABSPATH, HOME_URI, $diretorio) . '/',
+        'param_name' => 'midia',
+        'image_versions' => [
+            // Versão original
+            '' => [
+                'auto_orient' => true,
+                'max_width' => 1920,
+                'max_height' => 1080,
+                'jpeg_quality' => 95
+            ],
+            // Versão thumbnail
+            'thumbnail' => [
+                'crop' => false,
+                'max_width' => 150,
+                'max_height' => 150,
+                'jpeg_quality' => 80,
+                'upload_dir' => $diretorio . '/thumb/',
+                'upload_url' => str_replace(ABSPATH, HOME_URI, $diretorio) . '/thumb/'
+            ]
+        ],
+        'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
+        'max_file_size' => 5 * 1024 * 1024, // 5MB
+        'image_library' => 0, // 0 = GD, 1 = Imagick
+        'image_file_types' => '/\.(gif|jpe?g|png)$/i',
+        'print_response' => true,
+        'mkdir_mode' => 0777,
+        'orient_image' => true
+    ];
+
+    try {
+        // Verificar se os diretórios têm permissão de escrita
+        if (!is_writable($diretorio)) {
+            error_log("Diretório não tem permissão de escrita: " . $diretorio);
+
         }
 
-        $allowedTypes = ['image/jpeg', 'image/png'];
+        if (!is_writable($diretorio . '/thumb')) {
+            error_log("Diretório thumb não tem permissão de escrita: " . $diretorio . '/thumb');
 
-        if (!in_array($_FILES["midia"]["type"], $allowedTypes)) {
-            return false;
         }
 
-        return true;
+        // Verificar extensões do PHP necessárias
+        if (!extension_loaded('gd')) {
+            error_log("Extensão GD não está carregada");
+
+        }
+
+        $this->uploadHandler = new UploadHandler($options);
+    } catch (Exception $e) {
+        error_log("Erro no upload: " . $e->getMessage());
+        return json_encode(['error' => $e->getMessage()]);
     }
-
+}
     public function diversos($tipo = null, $diretorio = null)
     {
         if (!$tipo || !$diretorio) {
             return json_encode(['error' => 'Parâmetros inválidos']);
         }
 
-        // Validar e criar diretório se não existir
-        if (!file_exists($diretorio)) {
-            if (!mkdir($diretorio, 0777, true)) {
-                return json_encode(['error' => 'Erro ao criar diretório']);
-            }
-        }
+        $options = [
+            'upload_dir' => $diretorio . '/',
+            'upload_url' => HOME_URI . str_replace(ABSPATH, '', $diretorio) . '/',
+            'accept_file_types' => '/\.(gif|jpe?g|png|pdf|doc|docx|xls|xlsx)$/i',
+            'max_file_size' => 10 * 1024 * 1024, // 10MB
+            'param_name' => 'midia',
+            'image_versions' => [] // Sem versões de imagem para diversos
+        ];
 
-        // Instanciar classe de upload
-        $this->ClasseUploadFile = new UploadFile($tipo, $diretorio, 'upload');
-
-        // Validar tipos de arquivos permitidos
-        if (!$this->validarArquivos()) {
-            return json_encode(['error' => 'Tipo de arquivo não permitido']);
-        }
-
-        // Realizar upload
-        $resultado = $this->ClasseUploadFile->load();
-
-        // Registrar upload no banco de dados
-        // if ($resultado) {
-        //     $this->registrarUpload(json_decode($resultado, true));
-        // }
-
-        return $resultado;
-    }
-
-    private function validarArquivos()
-    {
-        $extensoesPermitidas = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx'];
-
-        if (!isset($_FILES["midia"])) {
-            return false;
-        }
-
-        if (is_array($_FILES["midia"]["name"])) {
-            foreach ($_FILES["midia"]["name"] as $filename) {
-                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-                if (!in_array($ext, $extensoesPermitidas)) {
-                    return false;
-                }
-            }
-        } else {
-            $ext = strtolower(pathinfo($_FILES["midia"]["name"], PATHINFO_EXTENSION));
-            if (!in_array($ext, $extensoesPermitidas)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private function registrarUpload($arquivos)
-    {
-        if (!is_array($arquivos)) {
-            return false;
-        }
-
-        foreach ($arquivos as $arquivo) {
-            $dados = [
-                'nome_arquivo' => $arquivo,
-                'tipo' => $this->ClasseUploadFile->getType(),
-                'data_upload' => date('Y-m-d H:i:s'),
-                'usuario_id' => $this->userdata['user_id']
-            ];
-
-            // Inserir no banco de dados
-            $this->db->insert('uploads', $dados);
-        }
+        $this->uploadHandler = new UploadHandler($options);
+        return;
     }
 }
