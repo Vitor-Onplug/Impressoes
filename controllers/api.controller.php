@@ -68,7 +68,6 @@ class ApiController extends MainController
                         fclose($handle);
 
                         //echo json_encode([$dadosRecebidos]);
-                        // var_dump($dadosRecebidos);
                         // exit;
                         // Envia os dados para o modelo
                         $response = $modelo->salvarDadosImpressao($dadosRecebidos);
@@ -140,8 +139,6 @@ class ApiController extends MainController
             // Formatar datas
             $dataInicio = $dataInicio->format('Y-m-d 00:00:00');
             $dataFim = $dataFim->format('Y-m-d 23:59:59');
-
-            var_dump($dataFim);
 
             // Consultar dados
             $query = $this->db->query(

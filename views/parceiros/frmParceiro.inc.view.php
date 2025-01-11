@@ -96,7 +96,6 @@ if (isset($_POST['idEmpresas'])) {
                                     $empresas = $modeloEmpresa->getEmpresas();
                                     $empresasSelecionadas = $modelo->getEmpresasDoParceiro($parceiro['id'] ?? null);
 
-                                    var_dump($empresasSelecionadas);
 
                                     foreach ($empresas as $empresa) {
                                         $selected = in_array($empresa['id'], $empresasSelecionadas) ? 'selected' : '';

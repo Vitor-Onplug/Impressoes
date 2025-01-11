@@ -39,7 +39,6 @@ class DashboardModel extends MainModel
 
 		if ($ano > 0) {
 			$anoSelecionado = $ano;
-			var_dump($anoSelecionado);
 		}
 
 		$where .= " AND YEAR(dataCadastro) = " . $anoSelecionado;
