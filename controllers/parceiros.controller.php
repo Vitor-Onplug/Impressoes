@@ -35,8 +35,9 @@ class ParceirosController extends MainController
             if ($_SESSION['idParceiroHash'] != $hash) {
                 $_SESSION['idParceiroHash'] = $hash;
             }
-            $conteudo = ABSPATH . '/views/dashboard/dashboard.view.php';
 
+            $this->goto_page('/');
+            return;
         } else {
             $conteudo = ABSPATH . '/views/parceiros/parceiros.view.php';
         }
