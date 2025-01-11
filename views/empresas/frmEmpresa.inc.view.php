@@ -31,6 +31,12 @@ $modelo->validarFormEmpresa();
 									</div>
 								</div>
 								
+								<div class="col-md-12">
+									<div class="form-group">
+										<label for="token">Token</label>
+										<input type="text" class="form-control" id="token" name="token" placeholder="" value="<?php echo htmlentities(chk_array($modelo->form_data, 'token')); ?>" required maxlength="255">
+									</div>
+								</div>
 
 							</div>
 

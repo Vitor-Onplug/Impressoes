@@ -1,12 +1,7 @@
 <?php if (!defined('ABSPATH')) exit;
 
-$idParceiro = 0;
-if (isset($_SESSION['idParceiroHash'])) {
-    $hash = $_SESSION['idParceiroHash'];
-    $idParceiro = decryptHash($hash);
-}
-
-$dadosDashboard = $modelo->getDadosDashboard($idParceiro);
+$idEmpresa = $_SESSION['userdata']['idEmpresa'];
+$dadosDashboard = $modelo->getDadosDashboard($idEmpresa);
 ?>
 
 <div class="content-wrapper">

@@ -93,7 +93,10 @@ class Empresa
 
         $id = (int) $id;
 
-        $query = $this->db->query('SELECT * FROM `tblEmpresa` WHERE `id` = ?', array($id));
+        $query = $this->db->query('SELECT * 
+                                    FROM `tblEmpresa` 
+                                    LEFT JOIN `tblTokens` ON `tblTokens`.`idEmpresa` = `tblEmpresa`.`id`
+                                    WHERE `tblEmpresa`.`id` = ?', array($id));
 
         if (!$query) {
             return false;

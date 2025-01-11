@@ -79,12 +79,14 @@ class ParceirosModel extends MainModel
     {
         if (is_numeric($idParceiro) > 0) {
             $query = $this->db->query('SELECT `tblParceiro`.*, `parceiroPai`.`nomeParceiro` AS `nome_parceiro_pai`, 
-            GROUP_CONCAT(`tblEmpresa`.`razaoSocial` SEPARATOR ", ") AS `empresas`
+            GROUP_CONCAT(`tblEmpresa`.`razaoSocial` SEPARATOR ", ") AS `empresas`, `tblTokens`.`token`
             FROM `tblParceiro` 
+            LEFT JOIN `tblTokens` ON `tblTokens`.`idParceiro` = `tblParceiro`.`id`
             LEFT JOIN `tblParceiro` AS `parceiroPai` ON `tblParceiro`.`idParceiro` = `parceiroPai`.`id`
             LEFT JOIN `relParceiroEmpresa` ON `tblParceiro`.`id` = `relParceiroEmpresa`.`idParceiro`
             LEFT JOIN `tblEmpresa` ON `relParceiroEmpresa`.`idEmpresa` = `tblEmpresa`.`id`
-            WHERE `tblParceiro`.`id` = ?', array($idParceiro));
+            WHERE `tblTokens`.`idEmpresa` iS NULL
+            AND `tblParceiro`.`id` = ?', array($idParceiro));
         } else {
             return;
         }
@@ -125,7 +127,7 @@ class ParceirosModel extends MainModel
     public function getParceiros($filtros = null)
     {
 
-        $where = null;
+        $where = " WHERE `tblTokens`.`idEmpresa` iS NULL ";
         $limit = null;
         $groupby = null;
 
@@ -161,10 +163,11 @@ class ParceirosModel extends MainModel
 
         $groupby = "GROUP BY `tblParceiro`.`id`";
 
-        $sql = "SELECT `tblParceiro`.*, 
+        $sql = "SELECT `tblParceiro`.*, `tblTokens`.`token`,
                    `parceiroPai`.`nomeParceiro` AS `nome_parceiro_pai`, 
                    GROUP_CONCAT(`tblEmpresa`.`razaoSocial` SEPARATOR ', ') AS `empresas`
             FROM `tblParceiro` 
+            LEFT JOIN `tblTokens` ON `tblTokens`.`idParceiro` = `tblParceiro`.`id`
             LEFT JOIN `tblParceiro` AS `parceiroPai` ON `tblParceiro`.`idParceiro` = `parceiroPai`.`id`
             LEFT JOIN `relParceiroEmpresa` ON `tblParceiro`.`id` = `relParceiroEmpresa`.`idParceiro`
             LEFT JOIN `tblEmpresa` ON `relParceiroEmpresa`.`idEmpresa` = `tblEmpresa`.`id`
@@ -188,22 +191,11 @@ class ParceirosModel extends MainModel
             return;
         }
 
-        // Verificar se o token já existe
-        $token = chk_array($this->form_data, 'token');
-        $query = $this->db->query('SELECT COUNT(*) as total FROM tblParceiro WHERE token = ?', [$token]);
-        $result = $query->fetch();
-
-        if ($result['total'] > 0) {
-            $this->form_msg = '<p class="form_error">O token informado já está em uso. Por favor, escolha outro.</p>';
-            return;
-        }
-
         $query = $this->db->insert('tblParceiro', array(
             'nomeParceiro' => chk_array($this->form_data, 'nomeParceiro'),
             'idParceiro' => chk_array($this->form_data, 'idParceiro'),
             'tipo' => chk_array($this->form_data, 'tipo'),
-            'observacoes' => chk_array($this->form_data, 'observacoes'),
-            'token' => chk_array($this->form_data, 'token')
+            'observacoes' => chk_array($this->form_data, 'observacoes')
         ));
 
         $this->id = $this->db->lastInsertId();
@@ -219,6 +211,18 @@ class ParceirosModel extends MainModel
                         'idParceiro' => $this->id
                     ));
                 }
+            }
+
+            // Adiciona o token
+            if (!empty($this->form_data['token'])) {
+                $this->db->insert(
+                    'tblTokens',
+                    array(
+                        'idEmpresa' => null,
+                        'idParceiro' => $this->id,
+                        'token' => chk_array($this->form_data, 'token')
+                    )
+                );
             }
 
             $this->form_msg = $this->controller->Messages->success('Registro cadastrado com sucesso. Aguarde, você será redirecionado...');
@@ -253,7 +257,6 @@ class ParceirosModel extends MainModel
             'idParceiro' => isset($_POST['idParceiro']) ? trim($_POST['idParceiro']) : null,
             'tipo' => isset($_POST['tipo']) ? trim($_POST['tipo']) : null,
             'observacoes' => isset($_POST['observacoes']) ? trim($_POST['observacoes']) : null,
-            'token' => isset($_POST['token']) ? trim($_POST['token']) : null,
             'dataEdicao' => date('Y-m-d H:i:s')
         );
 
@@ -276,6 +279,23 @@ class ParceirosModel extends MainModel
                         'idParceiro' => $id
                     ));
                 }
+            }
+
+            $this->form_data['token'] = isset($_POST['token']) ? trim($_POST['token']) : null;
+
+            // Adiciona o token
+            if (!empty($this->form_data['token'])) {
+
+                $this->db->query('DELETE FROM `tblTokens` WHERE idEmpresa IS NULL AND idParceiro = ? ',  array($id));
+
+                $this->db->insert(
+                    'tblTokens',
+                    array(
+                        'idEmpresa' => null,
+                        'idParceiro' => $id,
+                        'token' => chk_array($this->form_data, 'token')
+                    )
+                );
             }
 
             $this->form_msg = $this->controller->Messages->success('Parceiro atualizado com sucesso.');
@@ -306,6 +326,16 @@ class ParceirosModel extends MainModel
         return array_column($query->fetchAll(), 'idEmpresa');
     }
 
+    public function getParceiroEmpresa($idEmpresa)
+    {
+        if (empty($idEmpresa)) {
+            return [];
+        }
+
+        $query = $this->db->query("SELECT idParceiro FROM relParceiroEmpresa WHERE idEmpresa = ?", [$idEmpresa]);
+
+        return array_column($query->fetchAll(), 'idEmpresa');
+    }
 
     public function desbloquearParceiro()
     {
@@ -351,7 +381,9 @@ class ParceirosModel extends MainModel
 
     public function validarTokenParceiro($token)
     {
-        $query = $this->db->query('SELECT `id` FROM `tblParceiro` WHERE `token` = ?', array($token));
+        $query = $this->db->query('SELECT `idParceiro` 
+                                    FROM `tblTokens` 
+                                    WHERE `token` = ?', array($token));
         $registro = $query->fetch();
         // Verifica se há registros retornados
         if ($query->rowCount() > 0) {

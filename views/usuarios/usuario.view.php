@@ -26,8 +26,11 @@ if ($modelo->form_msg && preg_match('/(inexistente|encontrado)/simx', $modelo->f
 $modeloUsuarios->validarFormUsuarios();
 $registro = $modeloUsuarios->getUsuario(null, $id);
 
+$idEmpresa = $_SESSION['userdata']['idEmpresa'];
+$filtros = array('status' => 'T', 'idEmpresa' => $idEmpresa);
+
 // Buscar permissões e empresas disponíveis
-$permissoes = $modeloPermissoes->getPermissoes();
+$permissoes = $modeloPermissoes->getPermissoes($filtros);
 $empresas = $modeloEmpresa->getEmpresas(); // Implementar método no modelo para buscar empresas
 
 if ($registro != null) {

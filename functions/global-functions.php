@@ -1,4 +1,13 @@
 <?php
+
+$permissions = [
+	1 => 'SUPERADMIN',
+	2 => 'EDITAR USUARIOS',
+	3 => 'REVENDA',
+	4 => 'CONFIGURACOES',
+	5 => 'ADMINISTRADOR'
+];
+
 spl_autoload_register(function($class_name){
     $file = ABSPATH . '/classes/' . $class_name . '.class.php';
 

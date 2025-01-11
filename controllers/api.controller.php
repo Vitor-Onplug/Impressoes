@@ -22,6 +22,8 @@ class ApiController extends MainController
                     return;
                 }
 
+
+
                 $tokenValido = $modeloParceiros->validarTokenParceiro($tokenRecebido);
 
                 if (!isset($tokenValido['id'])) {
@@ -85,6 +87,109 @@ class ApiController extends MainController
             echo json_encode($response);
         } else {
             echo json_encode(['success' => false, 'message' => 'Rota não encontrada.']);
+        }
+    }
+
+    public function getDadosImpressao()
+    {
+        try {
+            header('Content-Type: application/json; charset=utf-8');
+
+            // Verificar se é uma requisição POST
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                echo json_encode(['success' => false, 'message' => 'Método não permitido.']);
+                return;
+            }
+            // Pegar dados do JSON
+            $jsonData = file_get_contents('php://input');
+            $dados = json_decode($jsonData, true);
+
+            if ($dados === null) {
+                echo json_encode(['success' => false, 'message' => 'Dados JSON inválidos']);
+                return;
+            }
+
+            // Validar token
+            $tokenRecebido = $dados['token'] ?? '';
+
+            if (empty($tokenRecebido)) {
+                echo json_encode(['success' => false, 'message' => 'Token não informado.']);
+                return;
+            }
+
+            $modeloParceiros = $this->load_model('parceiros/parceiros');
+            $tokenValido = $modeloParceiros->validarTokenParceiro($tokenRecebido);
+
+            if ($tokenValido === false) {
+                echo json_encode(['success' => false, 'message' => 'Token inválido.']);
+                return;
+            }
+
+            // Pegar datas do intervalo
+            $dataInicio = $dados['data_inicio'] ?? '';
+            $dataFim = $dados['data_fim'] ?? '';
+
+            // Validar datas
+            if (empty($dataInicio) || empty($dataFim)) {
+                echo json_encode(['success' => false, 'message' => 'Período não informado.']);
+                return;
+            }
+
+            $dataInicio = DateTime::createFromFormat('d-m-Y', $dataInicio);
+            $dataFim = DateTime::createFromFormat('d-m-Y', $dataFim);
+            // Formatar datas
+            $dataInicio = $dataInicio->format('Y-m-d 00:00:00');
+            $dataFim = $dataFim->format('Y-m-d 23:59:59');
+
+            var_dump($dataFim);
+
+            // Consultar dados
+            $query = $this->db->query(
+                "SELECT 
+                dataCadastro as 'Data/Hora',
+                nomeUsuario as Usuario,
+                paginas as Paginas,
+                copias as Copias,
+                qtdFolhas as Total,
+                nomeImpressora as Impressora,
+                nomeArquivo as Documento,
+                cliente as Cliente,
+                papel as Papel,
+                linguagem as Linguagem,
+                duplex as Duplex,
+                monocromatico as Monocromatico,
+                tamanhoKb as Tamanho
+            FROM tblImpressoes 
+            WHERE idParceiro = ? 
+            AND dataCadastro BETWEEN ? AND ?
+            ORDER BY dataCadastro ASC",
+                [$tokenValido['idParceiro'], $dataInicio, $dataFim]
+            );
+
+            if (!$query) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Erro ao consultar dados: ' . $this->db->error()
+                ]);
+                return;
+            }
+
+            $dados = $query->fetchAll();
+            $totalRegistros = count($dados);
+
+            // Retornar resultado
+            echo json_encode([
+                'success' => true,
+                'message' => 'Dados recuperados com sucesso',
+                'countRegistro' => $totalRegistros,
+                'data' => $dados,
+               
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erro ao recuperar dados: ' . $e->getMessage()
+            ]);
         }
     }
 }

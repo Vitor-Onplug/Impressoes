@@ -155,6 +155,15 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 				<nav class="mt-2">
 					<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
+						<li class="nav-item">
+							<a href="./" class="nav-link <?php if (!isset($activePage[0])) {
+																echo 'active';
+															} ?>">
+								<i class="nav-icon fas fa-tachometer-alt"></i>
+								<p>Dashboard</p>
+							</a>
+						</li>
+
 						<?php
 						$modeloParceiro = $this->load_model('parceiros/parceiros');
 						$idParceiroHash = isset($_SESSION['idParceiroHash']) ? $_SESSION['idParceiroHash'] : null;
@@ -163,11 +172,7 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 							$parceiro = $modeloParceiro->getParceiro($idParceiro);
 						?>
 
-							<li class="nav-item"><a href="./" class="nav-link <?php if (!isset($activePage[0])) {
-																					echo 'active';
-																				} ?>"><i class="nav-icon fas fa-tachometer-alt"></i>
-									<p>Dashboard</p>
-								</a></li>
+
 
 							<!-- Impressoras -->
 							<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras') {
@@ -268,6 +273,8 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 
 						<?php } ?>
 
+						<?php if($this->check_permissions('REVENDA', $this->userdata['modulo'])){
+						?>
 						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros') {
 												echo 'menu-open';
 											} ?>">
@@ -294,7 +301,11 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 								?>
 							</ul>
 						</li>
+						<?php }
+						?>
 
+						<?php if($this->check_permissions('ADMINISTRADOR', $this->userdata['modulo'])){
+						?>
 						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'empresas') {
 												echo 'menu-open';
 											} ?>">
@@ -322,8 +333,10 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 								?>
 							</ul>
 						</li>
+						<?php }
+						?>
 
-						<?php //if($this->check_permissions('pessoas', $this->userdata['modulo'])){
+						<?php if($this->check_permissions('ADMINISTRADOR', $this->userdata['modulo'])){
 						?>
 						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas') {
 												echo 'menu-open';
@@ -355,27 +368,28 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 									</a></li>
 							</ul>
 						</li>
-						<?php //} 
+						<?php } 
 						?>
 
 
-						<!-- <?php if ($this->check_permissions('sistema', $this->userdata['modulo'])) { ?>
+						<?php 
+						 if ($this->check_permissions('CONFIGURACOES', $this->userdata['modulo'])) { ?>
 							<li class="nav-item
 							<?php if (isset($activePage[0]) && $activePage[0] == 'configuracoes') {
-										echo 'menu-open';
-									} ?>
+								echo 'menu-open';
+							} ?>
 							
 							">
 								<a href="#" class="nav-link 
 								<?php if (isset($activePage[0]) && $activePage[0] == 'configuracoes') {
-										echo 'active';
-									} ?>
+									echo 'active';
+								} ?>
 								"><i class="nav-icon fas fa-cogs"></i>
 									<p>Configurações <i class="right fas fa-angle-left"></i></p>
 								</a>
 								<ul class="nav nav-treeview ml-3">
-									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/permissoes" class="nav-link
-									<?php if (isset($activePage[0]) && $activePage[0] == 'permissoes' && !isset($activePage[2])) {
+									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/configuracoes/permissoes" class="nav-link
+									<?php if (isset($activePage[0]) && $activePage[0] == 'configuracoes' && $activePage[1] == 'permissoes' &&!isset($activePage[3])){
 										echo 'active';
 									} ?>
 									"><i class="fas fa-key nav-icon"></i>
@@ -383,7 +397,7 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 										</a></li>
 								</ul>
 							</li>
-						<?php } ?> -->
+						<?php } ?>
 
 					</ul>
 				</nav>

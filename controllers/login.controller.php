@@ -5,11 +5,11 @@ class LoginController extends MainController
 	{
 		if ($this->logged_in) {
 
-			if (!isset($_SESSION['idParceiroHash'])) {
-				$this->goto_page('/parceiros');
-			} else {
+			// if (!isset($_SESSION['idParceiroHash'])) {
+			// 	$this->goto_page('/parceiros');
+			// } else {
 				$this->goto_page('/');
-			}
+			//}
 		}
 
 		$parametros = (func_num_args() >= 1) ? func_get_arg(0) : array();

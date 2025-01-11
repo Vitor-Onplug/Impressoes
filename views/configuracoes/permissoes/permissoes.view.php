@@ -9,12 +9,15 @@ if (chk_array($this->parametros, 0) == 'desbloquear') {
     $modelo->desbloquearPermissao();
 }
 
-$status = isset($_REQUEST["status"]) ? $_REQUEST["status"] : null;
+$status = isset($_REQUEST["status"]) ? $_REQUEST["status"] : 'T';
 $q = isset($_REQUEST["q"]) ? $_REQUEST["q"] : null;
 
-$filtros = array('status' => $status, 'q' => $q);
+$idEmpresa = $_SESSION['userdata']['idEmpresa'];
 
-$permissoes = $modelo->getAllPermissoes($filtros);
+$filtros = array('status' => $status, 'q' => $q, 'idEmpresa' => $idEmpresa);
+
+
+$permissoes = $modelo->getPermissoes($filtros);
 ?>
 
 
@@ -81,33 +84,59 @@ $permissoes = $modelo->getAllPermissoes($filtros);
                     </thead>
 
                     <tbody>
-                        <?php foreach ($permissoes as $dados): ?>
+                        <?php $exibeSuper = $this->check_permissions('SUPERADMIN', $this->userdata['modulo']);
+                        foreach ($permissoes as $dados): 
+                            if (!$exibeSuper && $dados['id'] == 1) continue; 
+                        ?>
                             <tr>
                                 <td>
-                                    <a href="<?php echo HOME_URI; ?>/permissoes/index/editar/<?php echo $dados['id']; ?>"><?php echo $dados['permissao']; ?></a>
+                                    <a href="<?php echo HOME_URI; ?>/configuracoes/permissoes/editar/<?php echo encryptId($dados['id']); ?>"><?php echo $dados['permissao']; ?></a>
                                 </td>
                                 <!-- Exibo os modulos da permissao que estao serializados em PHP -->
                                 <td>
-                                    <?php
-                                    $modulos = unserialize($dados['modulo']);
-                                    foreach ($modulos as $modulo) { ?><a href="<?php echo HOME_URI; ?>/permissoes/index/editar/<?php echo $dados['id']; ?>"><?php echo strtoupper($modulo) . '<br>';}?></a>
+
+                                    <a href="<?php echo HOME_URI; ?>/configuracoes/permissoes/editar/<?php echo encryptId($dados['id']); ?>" class="permission-list">
+                                        <?php
+                                        $modulos = explode(',', $dados['modulo']);
+                                        $textoModulos = [];
+                                        
+
+                                        foreach ($modulos as $moduloId) {
+
+                                            if (isset($permissions[$moduloId])) {
+                                                $textoModulos[] = $permissions[$moduloId];
+                                            }
+                                        }
+                                        echo implode(', ', $textoModulos);
+                                        ?>
+                                    </a>
                                 <td>
-										<a href="<?php echo HOME_URI; ?>/permissoes/index/editar/<?php echo $dados['id']; ?>" class="icon-tab" title="Editar"><i class="far fa-edit"></i></a>&nbsp;
-										
-										<?php if($dados['status'] == 'T'){ ?>
-										<a href="<?php echo HOME_URI;?>/permissoes/index/bloquear/<?php echo $dados['id']; ?>" class="icon-tab" title="Bloquear"><i class="fas fa-unlock text-green"></i></a>&nbsp;
-										<?php }else{ ?>
-										<a href="<?php echo HOME_URI;?>/permissoes/index/desbloquear/<?php echo $dados['id']; ?>" class="icon-tab" title="Desbloquear"><i class="fas fa-lock text-red"></i></a>
-										<?php } ?>
-									</td>
+                                    <a href="<?php echo HOME_URI; ?>/configuracoes/permissoes/editar/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Editar"><i class="far fa-edit"></i></a>&nbsp;
+
+                                    <?php if ($dados['status'] == 'T') { ?>
+                                        <a href="<?php echo HOME_URI; ?>/configuracoes/permissoes/bloquear/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Bloquear"><i class="fas fa-unlock text-green"></i></a>&nbsp;
+                                    <?php } else { ?>
+                                        <a href="<?php echo HOME_URI; ?>/configuracoes/permissoes/desbloquear/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Desbloquear"><i class="fas fa-lock text-red"></i></a>
+                                    <?php } ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
             <div class="card-footer">
-                <a href="<?php echo HOME_URI; ?>/permissoes/index/adicionar"><button type="button" class="btn btn-danger btn-lg">Adicionar Permissão</button></a>
+                <a href="<?php echo HOME_URI; ?>/configuracoes/permissoes/adicionar"><button type="button" class="btn btn-danger btn-lg">Adicionar Permissão</button></a>
             </div>
         </div>
     </section>
 </div>
+
+<style>
+.permission-list {
+    display: block;
+    max-width: 400px; /* ou o tamanho que preferir */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+</style>
