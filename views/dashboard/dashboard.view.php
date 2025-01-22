@@ -2,6 +2,24 @@
 
 $idEmpresa = $_SESSION['userdata']['idEmpresa'];
 $dadosDashboard = $modelo->getDadosDashboard($idEmpresa);
+
+// Se não houver dados, retorna tudo vazio e exibe mensagem de erro
+if (!$dadosDashboard) {
+    $dadosDashboard = [
+        'totalImpressoes' => 0,
+        'totalUsuarios' => 0,
+        'totalImpressoras' => 0,
+        'impressaoMes' => 0,
+        'usuarios' => [
+            'labels' => [],
+            'data' => []
+        ],
+        'impressoras' => [
+            'labels' => [],
+            'data' => []
+        ]
+    ];
+}
 ?>
 
 <div class="content-wrapper">
@@ -25,6 +43,9 @@ $dadosDashboard = $modelo->getDadosDashboard($idEmpresa);
     <!-- Conteúdo principal -->
     <section class="content">
         <div class="container-fluid">
+            <?php
+            echo $modeloEmails->form_msg;
+            ?>
             <div class="row">
                 <!-- Card: Total de Impressões -->
                 <div class="col-lg-3 col-6">

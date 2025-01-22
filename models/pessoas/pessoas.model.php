@@ -153,14 +153,14 @@ class PessoasModel extends MainModel
 	public function getAvatar($id = null, $tn = false)
 	{
 		try {
-			// Validar IDreturn "Aqui";
+			// Validar ID
 			if (!is_numeric($id) || $id <= 0) {
 				return "views/standards/images/no-img.jpg";
 			}
 
 			// Como já estamos no modelo pessoa, podemos usar direto
 			$this->getPessoa($id);
-			
+
 			if (!isset($this->form_data['nome'])) {
 				return "views/standards/images/no-img.jpg";
 			}
@@ -177,17 +177,19 @@ class PessoasModel extends MainModel
 
 			// Filtrar apenas imagens
 			$imagens = array_filter($arquivos, function ($arquivo) {
-				return preg_match("/\.(jpg|jpeg|gif|png){1}$/i", strtolower($arquivo));
+				return preg_match("/\.(jpg|jpeg|gif|png)$/i", strtolower($arquivo));
 			});
 
 			if (empty($imagens)) {
 				return "views/standards/images/no-img.jpg";
 			}
 
-			// Ordena por nome (que começa com data)
-			rsort($imagens);
+			// Ordena os arquivos pelo nome em ordem decrescente (baseado no timestamp no nome)
+			usort($imagens, function ($a, $b) {
+				return strcmp($b, $a); // Ordenação reversa para pegar o mais recente
+			});
 
-			// Pega a mais recente
+			// Pega a imagem mais recente
 			$imagemRecente = array_shift($imagens);
 
 			// Retorna o caminho conforme solicitado (normal ou thumbnail)
@@ -203,6 +205,7 @@ class PessoasModel extends MainModel
 			return "views/standards/images/no-img.jpg";
 		}
 	}
+
 
 	public function bloquearPessoa()
 	{

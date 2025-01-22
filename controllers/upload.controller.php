@@ -1,4 +1,4 @@
-<<?php
+<?php
     class UploadController extends MainController
     {
 

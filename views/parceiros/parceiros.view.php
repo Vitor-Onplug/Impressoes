@@ -13,7 +13,14 @@ if (chk_array($this->parametros, 0) == 'bloquear') {
 if (chk_array($this->parametros, 0) == 'desbloquear') {
     $modelo->desbloquearParceiro();
 }
+$id = 0;
+if (chk_array($this->parametros, 0) == 'vincular') {
+    $id = decryptHash(chk_array($this->parametros, 1));
+}
 
+$idEmpresa = $_SESSION['userdata']['idEmpresa'];
+$idParceiroUsuario = $modelo->getParceiroEmpresa($idEmpresa);
+$parceiro = $modelo->getParceiro($idParceiroUsuario);
 $parceiros = $modelo->getParceiros($filtros);
 
 ?>
@@ -78,6 +85,7 @@ $parceiros = $modelo->getParceiros($filtros);
                             <th style="width: 200px;">Empresas</th>
                             <th style="width: 150px;">Parceiro Pai</th>
                             <th style="width: 150px;">Tipo</th>
+                            <th style="width: 150px;">Revendas</th>
                             <th style="width: 150px;">Parceiro Desde</th>
                             <th class="sorter-false">Opções</th>
                         </tr>
@@ -95,9 +103,12 @@ $parceiros = $modelo->getParceiros($filtros);
                                     ?>
                                 </td>
                                 <td><?php echo ucfirst(strtolower($dados['tipo'])); ?></td>
+                                <td><?php echo $dados['qtdRevendas'] . ' / ' . $dados['qtdRevenda']; ?></td>
                                 <td><?php echo date('d/m/Y', strtotime($dados['dataCriacao'])); ?></td>
                                 <td>
                                     <a href="<?php echo HOME_URI; ?>/parceiros/index/editar/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Editar"><i class="far fa-edit"></i></a>&nbsp;
+                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/vincular/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Ver  Dados Parceiro"><i class="fas fa-link"></i></a>&nbsp;
+                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/ver/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Ver"><i class="far fa-eye"></i></a>&nbsp;
                                     <?php if ($dados['status'] == 'T'): ?>
                                         <a href="<?php echo HOME_URI; ?>/parceiros/index/bloquear/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Bloquear"><i class="fas fa-unlock text-green"></i></a>
                                     <?php else: ?>
@@ -112,9 +123,37 @@ $parceiros = $modelo->getParceiros($filtros);
 
             </div>
             <div class="card-footer">
-                <a href="<?php echo HOME_URI; ?>/parceiros/index/adicionar"><button type="button" class="btn btn-danger btn-lg">Adicionar Parceiro</button></a>
+                <a href="<?php echo HOME_URI; ?>/parceiros/index/adicionar"
+                    <?php echo ($parceiro['qtdRevendas'] >= $parceiro['qtdRevenda']) ? 'class="disabled"' : ''; ?>>
+                    <button type="button" class="btn btn-danger btn-lg"
+                        <?php echo ($parceiro['qtdRevendas'] >= $parceiro['qtdRevenda']) ? 'disabled' : ''; ?>>Adicionar Parceiro</button>
+                </a>
             </div>
+
         </div>
     </section>
 </div>
 
+<script>
+    $(document).ready(function() {
+        <?php if (isset($id) && $id > 0): ?>
+            var id = <?php echo json_encode($id); ?>; // Use json_encode para segurança
+            $('#selectParceiro').val(id).change();
+
+            // Aguarde um pequeno intervalo antes do redirecionamento
+            setTimeout(function() {
+                $.ajax({
+                    url: '<?php echo HOME_URI; ?>/parceiros/index/setParceiro',
+                    type: 'POST',
+                    data: {
+                        idParceiro: id
+                    },
+                    success: function(data) {
+                        window.location.href = "<?php echo HOME_URI; ?>/parceiros";
+                    }
+                });
+
+            }, 100); // Ajuste o tempo se necessário
+        <?php endif; ?>
+    });
+</script>

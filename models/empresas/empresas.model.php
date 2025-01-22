@@ -86,20 +86,16 @@ class EmpresasModel extends MainModel
 			$this->form_msg = $this->controller->Messages->error('Erro interno: Os dados não foram enviados.');
 		} else {
 
-			// Adiciona o token
-			if (!empty($this->form_data['token'])) {
+			$this->db->query('DELETE FROM `tblTokens` WHERE idEmpresa = ? ',  array($this->id));
 
-				$this->db->query('DELETE FROM `tblTokens` WHERE idEmpresa = ? AND idParceiro = ? ',  array($this->id, 1));
+			$this->db->insert(
+				'tblTokens',
+				array(
+					'idEmpresa' => $this->id,
+					'token' => chk_array($this->form_data, 'token')
+				)
+			);
 
-				$this->db->insert(
-					'tblTokens',
-					array(
-						'idEmpresa' => $this->id,
-						'idParceiro' => null,
-						'token' => chk_array($this->form_data, 'token')
-					)
-				);
-			}
 
 
 			$this->form_msg = $this->controller->Messages->success('Registro editado com sucesso. Aguarde, você será redirecionado...');
@@ -122,16 +118,13 @@ class EmpresasModel extends MainModel
 			$this->form_msg = $this->controller->Messages->error('Erro interno: Os dados não foram enviados.');
 		} else {
 
-			if (!empty($this->form_data['token'])) {
-				$this->db->insert(
-					'tblTokens',
-					array(
-						'idEmpresa' => $this->id,
-						'idParceiro' => null,
-						'token' => chk_array($this->form_data, 'token')
-					)
-				);
-			}
+			$this->db->insert(
+				'tblTokens',
+				array(
+					'idEmpresa' => $this->id,
+					'token' => chk_array($this->form_data, 'token')
+				)
+			);
 
 
 			$this->form_msg = $this->controller->Messages->success('Registro cadastrado com sucesso. Aguarde, você será redirecionado...');
@@ -168,6 +161,20 @@ class EmpresasModel extends MainModel
 	public function getEmpresas($filtros = null)
 	{
 		return $this->ClasseEmpresa->getEmpresas($filtros);
+	}
+
+	public function getFuncionariosEmpresa($idEmpresa)
+	{
+		$query = $this->db->query('SELECT tblPessoa.*, tblUsuario.idPermissao, tblUsuario.idEmpresa
+		FROM tblPessoa 
+		INNER JOIN tblUsuario ON tblPessoa.id = tblUsuario.idPessoa
+		WHERE tblPessoa.status = "T" AND idEmpresa = ? ', array($idEmpresa));
+
+		if (!$query) {
+			return false;
+		}
+
+		return $query->fetchAll();
 	}
 
 	public function getAvatar($id = null, $tn = false)
@@ -242,5 +249,46 @@ class EmpresasModel extends MainModel
 
 			return;
 		}
+	}
+
+	public function buscarEmpresas($termo = null)
+	{
+		if (strlen($termo) >= 3) {
+			$query = $this->db->query('
+            SELECT 
+                `tblEmpresa`.`id`,
+                `tblEmpresa`.`razaoSocial`,
+				`tblDocumento`.`documento` as documento
+            FROM `tblEmpresa`
+			LEFT JOIN `tblDocumento` ON `tblDocumento`.`idEmpresa` = `tblEmpresa`.`id`
+            WHERE (`tblEmpresa`.`razaoSocial` LIKE ? OR `tblEmpresa`.`nomeFantasia` LIKE ? OR `tblDocumento`.`documento` LIKE ?)
+            AND `tblEmpresa`.`status` = 1
+            ORDER BY `tblEmpresa`.`razaoSocial`
+            LIMIT 30
+        ', array('%' . $termo . '%', '%' . $termo . '%' , '%' . $termo . '%'));
+
+			if (!$query) {
+				return array('items' => array(), 'total_count' => 0);
+			}
+
+			$resultados = $query->fetchAll();
+
+			// Formata os resultados para o select2
+			$items = array_map(function ($empresa) {
+				return array(
+					'id' => $empresa['id'],
+					'text' => $empresa['razaoSocial'], // Necessário para o select2
+					'razaoSocial' => $empresa['razaoSocial'],
+					'documento' => $empresa['documento']
+				);
+			}, $resultados);
+
+			return array(
+				'items' => $items,
+				'total_count' => count($items)
+			);
+		}
+
+		return array('items' => array(), 'total_count' => 0);
 	}
 }

@@ -27,7 +27,9 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 	<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/adminlte/css/adminlte.min.css">
 
 	<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/select2/css/select2.min.css">
-
+	<!-- CSS do jQuery File Upload -->
+	<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/css/jquery.fileupload.css">
+	<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/css/jquery.fileupload-ui.css">
 	<!-- Datepicker CSS -->
 	<link rel="stylesheet" href="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css">
 
@@ -273,107 +275,107 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 
 						<?php } ?>
 
-						<?php if($this->check_permissions('REVENDA', $this->userdata['modulo'])){
+						<?php if ($this->check_permissions('REVENDA', $this->userdata['modulo'])) {
 						?>
-						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros') {
-												echo 'menu-open';
-											} ?>">
-							<a href="#" class="nav-link	<?php if (isset($activePage[0]) && $activePage[0] == 'parceiros') {
-																echo 'active';
-															} ?>
+							<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros') {
+													echo 'menu-open';
+												} ?>">
+								<a href="#" class="nav-link	<?php if (isset($activePage[0]) && $activePage[0] == 'parceiros') {
+																	echo 'active';
+																} ?>
 							"><i class="nav-icon fas fa-user"></i>
-								<p>Parceiros <i class="right fas fa-angle-left"></i></p>
-							</a>
-							<ul class="nav nav-treeview ml-3">
-								<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/parceiros" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros' && !isset($activePage[2])) {
-																															echo 'active';
-																														} ?>"><i class="far fa-calendar nav-icon"></i>
-										<p>Parceiros</p>
-									</a></li>
-								<?php //if($this->check_permissions('empresa-adicionar', $this->userdata['modulo'])){
-								?>
-								<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/parceiros/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros' && $activePage[2] == 'adicionar') {
-																																			echo 'active';
-																																		} ?>"><i class="far fa-calendar-plus nav-icon"></i>
-										<p>Adicionar</p>
-									</a></li>
-								<?php //} 
-								?>
-							</ul>
-						</li>
+									<p>Parceiros <i class="right fas fa-angle-left"></i></p>
+								</a>
+								<ul class="nav nav-treeview ml-3">
+									<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/parceiros" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros' && !isset($activePage[2])) {
+																																echo 'active';
+																															} ?>"><i class="far fa-calendar nav-icon"></i>
+											<p>Parceiros</p>
+										</a></li>
+									<?php //if($this->check_permissions('empresa-adicionar', $this->userdata['modulo'])){
+									?>
+									<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/parceiros/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros' && $activePage[2] == 'adicionar') {
+																																				echo 'active';
+																																			} ?>"><i class="far fa-calendar-plus nav-icon"></i>
+											<p>Adicionar</p>
+										</a></li>
+									<?php //} 
+									?>
+								</ul>
+							</li>
 						<?php }
 						?>
 
-						<?php if($this->check_permissions('ADMINISTRADOR', $this->userdata['modulo'])){
+						<?php if ($this->check_permissions('ADMINISTRADOR', $this->userdata['modulo'])) {
 						?>
-						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'empresas') {
-												echo 'menu-open';
-											} ?>">
-							<a href="#" class="nav-link 
+							<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'empresas') {
+													echo 'menu-open';
+												} ?>">
+								<a href="#" class="nav-link 
 							<?php if (isset($activePage[0]) && $activePage[0] == 'empresas') {
 								echo 'active';
 							} ?>
 							"><i class="nav-icon fas fa-building"></i>
-								<p>Empresas <i class="right fas fa-angle-left"></i></p>
-							</a>
-							<ul class="nav nav-treeview ml-3">
-								<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/empresas" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'empresas' && !isset($activePage[2])) {
-																															echo 'active';
-																														} ?>""><i class=" far fa-calendar nav-icon"></i>
-										<p>Empresas</p>
-									</a></li>
-								<?php //if($this->check_permissions('empresa-adicionar', $this->userdata['modulo'])){
-								?>
-								<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/empresas/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'empresas' && $activePage[2] == 'adicionar') {
-																																			echo 'active';
-																																		} ?>"><i class="far fa-calendar-plus nav-icon"></i>
-										<p>Adicionar</p>
-									</a></li>
-								<?php //} 
-								?>
-							</ul>
-						</li>
+									<p>Empresas <i class="right fas fa-angle-left"></i></p>
+								</a>
+								<ul class="nav nav-treeview ml-3">
+									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/empresas" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'empresas' && !isset($activePage[2])) {
+																																echo 'active';
+																															} ?>""><i class=" far fa-calendar nav-icon"></i>
+											<p>Empresas</p>
+										</a></li>
+									<?php //if($this->check_permissions('empresa-adicionar', $this->userdata['modulo'])){
+									?>
+									<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/empresas/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'empresas' && $activePage[2] == 'adicionar') {
+																																				echo 'active';
+																																			} ?>"><i class="far fa-calendar-plus nav-icon"></i>
+											<p>Adicionar</p>
+										</a></li>
+									<?php //} 
+									?>
+								</ul>
+							</li>
 						<?php }
 						?>
 
-						<?php if($this->check_permissions('ADMINISTRADOR', $this->userdata['modulo'])){
+						<?php if ($this->check_permissions('ADMINISTRADOR', $this->userdata['modulo'])) {
 						?>
-						<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas') {
-												echo 'menu-open';
-											} ?>">
-							<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas') {
-															echo 'active';
-														} ?>"><i class="nav-icon fas fa-walking"></i>
-								<p>Pessoas <i class="right fas fa-angle-left"></i></p>
-							</a>
-							<ul class="nav nav-treeview ml-3">
-								<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/pessoas" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas' && !isset($activePage[2])) {
-																														echo 'active';
-																													} ?>"><i class="far fa-calendar nav-icon"></i>
-										<p>Pessoas</p>
-									</a></li>
-								<?php //if($this->check_permissions('pessoa-adicionar', $this->userdata['modulo'])){
-								?>
-								<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/pessoas/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas' && (isset($activePage[2]) && $activePage[2] == 'adicionar')) {
-																																		echo 'active';
-																																	} ?>"><i class="far fa-calendar-plus nav-icon"></i>
-										<p>Adicionar</p>
-									</a></li>
-								<?php //} 
-								?>
-								<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/pessoas/index/perfil/<?php echo encryptId($_SESSION['userdata']['id']); ?>" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'usuarios' && isset($activePage[2]) && $activePage[2] == 'perfil' && $activePage[3] = null) {
-																																															echo 'active';
-																																														} ?>"><i class="fas fa-user nav-icon"></i>
-										<p>Seu Perfil</p>
-									</a></li>
-							</ul>
-						</li>
-						<?php } 
+							<li class="nav-item <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas') {
+													echo 'menu-open';
+												} ?>">
+								<a href="#" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas') {
+																echo 'active';
+															} ?>"><i class="nav-icon fas fa-walking"></i>
+									<p>Pessoas <i class="right fas fa-angle-left"></i></p>
+								</a>
+								<ul class="nav nav-treeview ml-3">
+									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/pessoas" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas' && !isset($activePage[2])) {
+																															echo 'active';
+																														} ?>"><i class="far fa-calendar nav-icon"></i>
+											<p>Pessoas</p>
+										</a></li>
+									<?php //if($this->check_permissions('pessoa-adicionar', $this->userdata['modulo'])){
+									?>
+									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/pessoas/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'pessoas' && (isset($activePage[2]) && $activePage[2] == 'adicionar')) {
+																																			echo 'active';
+																																		} ?>"><i class="far fa-calendar-plus nav-icon"></i>
+											<p>Adicionar</p>
+										</a></li>
+									<?php //} 
+									?>
+									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/pessoas/index/perfil/<?php echo encryptId($_SESSION['userdata']['id']); ?>" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'usuarios' && isset($activePage[2]) && $activePage[2] == 'perfil' && $activePage[3] = null) {
+																																																echo 'active';
+																																															} ?>"><i class="fas fa-user nav-icon"></i>
+											<p>Seu Perfil</p>
+										</a></li>
+								</ul>
+							</li>
+						<?php }
 						?>
 
 
-						<?php 
-						 if ($this->check_permissions('CONFIGURACOES', $this->userdata['modulo'])) { ?>
+						<?php
+						if ($this->check_permissions('CONFIGURACOES', $this->userdata['modulo'])) { ?>
 							<li class="nav-item
 							<?php if (isset($activePage[0]) && $activePage[0] == 'configuracoes') {
 								echo 'menu-open';
@@ -389,7 +391,7 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 								</a>
 								<ul class="nav nav-treeview ml-3">
 									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/configuracoes/permissoes" class="nav-link
-									<?php if (isset($activePage[0]) && $activePage[0] == 'configuracoes' && $activePage[1] == 'permissoes' &&!isset($activePage[3])){
+									<?php if (isset($activePage[0]) && $activePage[0] == 'configuracoes' && $activePage[1] == 'permissoes' && !isset($activePage[3])) {
 										echo 'active';
 									} ?>
 									"><i class="fas fa-key nav-icon"></i>
@@ -433,13 +435,19 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 	<script src="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 	<script src="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 
-	<!-- Mudar aqui pra local futuramente -->
+	<!-- jQuery UI depois -->
+	<script src="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/jquery-ui/jquery-ui.min.js"></script>
 
-	<!-- jQuery UI Widget (necessário para jQuery File Upload) -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.32.0/js/vendor/jquery.ui.widget.js"></script>
-	<!-- jQuery File Upload -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/9.32.0/js/jquery.fileupload.min.js"></script>
+	<!-- Widget factory do jQuery UI (CRUCIAL) -->
+	<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/vendor/jquery.ui.widget.js"></script>
 
+	<!-- Depois os scripts do File Upload na ordem correta -->
+	<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.iframe-transport.js"></script>
+	<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload.js"></script>
+	<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload-process.js"></script>
+	<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload-image.js"></script>
+	<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload-validate.js"></script>
+	<script src="<?php echo HOME_URI; ?>/views/standards/plugins/fileupload/js/jquery.fileupload-ui.js"></script>
 	<!-- Datepicker JS -->
 	<script src="<?php echo HOME_URI; ?>/views/standards/adminlte/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
 

@@ -49,7 +49,15 @@ if(chk_array($this->parametros, 0) == 'editar'){
 			<section class="content">
 				<div class="row">
                     <div class="col-lg-2 col-xs-2">
-                        <div class="small-box <?php if(chk_array($this->parametros, 0) == 'adicionar'){ echo"bg-red"; }elseif(chk_array($this->parametros, 0) == 'editar' && (chk_array($this->parametros, 2) != 'documentos' && chk_array($this->parametros, 2) != 'emails' && chk_array($this->parametros, 2) != 'enderecos' && chk_array($this->parametros, 2) != 'telefones' && chk_array($this->parametros, 2) != 'arquivos')){ echo"bg-red"; }else{ echo"bg-gray"; } ?>">
+                        <div class="small-box <?php if(chk_array($this->parametros, 0) == 'adicionar'){ echo"bg-red"; }elseif(
+                            chk_array($this->parametros, 0) == 'editar' && (
+                            chk_array($this->parametros, 2) != 'documentos' && 
+                            chk_array($this->parametros, 2) != 'emails' && 
+                            chk_array($this->parametros, 2) != 'enderecos' && 
+                            chk_array($this->parametros, 2) != 'telefones' && 
+                            chk_array($this->parametros, 2) != 'arquivos' &&
+                            chk_array($this->parametros, 2) != 'pessoas'
+                        )){ echo"bg-red"; }else{ echo"bg-gray"; } ?>">
                             <div class="inner">
                                 <h3>01</h3>
 
@@ -64,10 +72,27 @@ if(chk_array($this->parametros, 0) == 'editar'){
                         </div>
                     </div>
 
+                    <!-- Card para funcionarios da empresa -->
+                    <div class="col-lg-2 col-xs-2">
+                        <div class="small-box <?php if(chk_array($this->parametros, 0) == 'adicionar'){ echo"bg-gray"; }elseif(chk_array($this->parametros, 0) == 'editar' && chk_array($this->parametros, 2) == 'pessoas'){ echo"bg-red"; }else{ echo"bg-gray"; } ?>">
+                            <div class="inner">
+                                <h3>02</h3>
+
+                                <p>Funcionários</p>
+                            </div>
+                            <div class="icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <?php if(chk_array($this->parametros, 0) == 'editar'){ ?>
+                            <a href="<?php echo HOME_URI; ?>/empresas/index/editar/<?php echo chk_array($parametros, 1); ?>/pessoas" class="small-box-footer">Mostrar <i class="fas fa-arrow-circle-right"></i></a>
+                            <?php } ?>
+                        </div>
+                    </div>
+
 					<div class="col-lg-2 col-xs-2">
                         <div class="small-box <?php if(chk_array($this->parametros, 0) == 'adicionar'){ echo"bg-gray"; }elseif(chk_array($this->parametros, 0) == 'editar' && chk_array($this->parametros, 2) == 'documentos'){ echo"bg-red"; }else{ echo"bg-gray"; } ?>">
                             <div class="inner">
-                                <h3>02</h3>
+                                <h3>03</h3>
 
                                 <p>Documentos</p>
                             </div>
@@ -83,7 +108,7 @@ if(chk_array($this->parametros, 0) == 'editar'){
                     <div class="col-lg-2 col-xs-2">
                         <div class="small-box <?php if(chk_array($this->parametros, 0) == 'adicionar'){ echo"bg-gray"; }elseif(chk_array($this->parametros, 0) == 'editar' && chk_array($this->parametros, 2) == 'emails'){ echo"bg-red"; }else{ echo"bg-gray"; } ?>">
                             <div class="inner">
-                                <h3>03</h3>
+                                <h3>04</h3>
 
                                 <p>E-mails</p>
                             </div>
@@ -99,7 +124,7 @@ if(chk_array($this->parametros, 0) == 'editar'){
 					<div class="col-lg-2 col-xs-2">
                         <div class="small-box <?php if(chk_array($this->parametros, 0) == 'adicionar'){ echo"bg-gray"; }elseif(chk_array($this->parametros, 0) == 'editar' && chk_array($this->parametros, 2) == 'enderecos'){ echo"bg-red"; }else{ echo"bg-gray"; } ?>">
                             <div class="inner">
-                                <h3>04</h3>
+                                <h3>05</h3>
 
                                 <p>Endereços</p>
                             </div>
@@ -115,7 +140,7 @@ if(chk_array($this->parametros, 0) == 'editar'){
 					<div class="col-lg-2 col-xs-2">
                         <div class="small-box <?php if(chk_array($this->parametros, 0) == 'adicionar'){ echo"bg-gray"; }elseif(chk_array($this->parametros, 0) == 'editar' && chk_array($this->parametros, 2) == 'telefones'){ echo"bg-red"; }else{ echo"bg-gray"; } ?>">
                             <div class="inner">
-                                <h3>05</h3>
+                                <h3>06</h3>
 
                                 <p>Telefones</p>
                             </div>
@@ -131,7 +156,7 @@ if(chk_array($this->parametros, 0) == 'editar'){
 					<div class="col-lg-2 col-xs-2">
                         <div class="small-box <?php if(chk_array($this->parametros, 0) == 'adicionar'){ echo"bg-gray"; }elseif(chk_array($this->parametros, 0) == 'editar' && chk_array($this->parametros, 2) == 'arquivos'){ echo"bg-red"; }else{ echo"bg-gray"; } ?>">
                             <div class="inner">
-                                <h3>06</h3>
+                                <h3>07</h3>
 
                                 <p>Arquivos</p>
                             </div>
@@ -159,7 +184,10 @@ if(chk_array($this->parametros, 0) == 'editar'){
 					require ABSPATH . '/views/empresas/frmEmails.inc.view.php';
 				}elseif(chk_array($this->parametros, 2) == 'telefones'){
 					require ABSPATH . '/views/empresas/frmTelefones.inc.view.php';
-				}else{
+				}elseif(chk_array($this->parametros, 2) == 'pessoas'){
+                    require ABSPATH . '/views/empresas/frmFuncionarios.inc.view.php';
+                }
+                else{
 					require ABSPATH . '/views/empresas/frmEmpresa.inc.view.php';
 				}
 			}

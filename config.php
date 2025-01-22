@@ -33,7 +33,7 @@ define('DB_CHARSET', 'utf8');
 
 define('HASH_KEY', 'crede@123');
 
-define('DEBUG', false);
+define('DEBUG', true);
 
 require_once ABSPATH . '/loader.php';
 ?>

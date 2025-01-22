@@ -19,9 +19,30 @@ class DashboardModel extends MainModel
 	{
 		$where = " WHERE 1=1 ";
 
+
 		if ($idParceiro > 0) {
-			$where .= " AND idParceiro = " . $idParceiro . " ";
+			// Pego todos os parceiros relacionados ao parceiro principal
+			$queryParceiros = $this->db->query("
+					WITH RECURSIVE SubParceiros AS (
+						-- Seleciona os parceiros diretos do parceiro principal
+						SELECT p.id, p.idParceiro
+						FROM tblParceiro p
+						WHERE p.id = $idParceiro
+						
+						UNION ALL
+						
+						-- Seleciona os subparceiros recursivamente
+						SELECT p.id, p.idParceiro
+						FROM tblParceiro p
+						INNER JOIN SubParceiros sp ON p.idParceiro = sp.id
+						WHERE p.status = 'T'
+					)
+					SELECT id FROM SubParceiros
+				");
+
+			$where .= " AND idParceiro IN (" . implode(',', $queryParceiros->fetchAll(PDO::FETCH_COLUMN)) . ") ";
 		}
+
 
 
 

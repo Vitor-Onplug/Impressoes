@@ -12,6 +12,7 @@ class ParceirosModel extends MainModel
     private $idParceiro; // Refencia um id na propria tabela tblParceiro gerando um relacionamento entre parceiros e subparceiros
     private $tipo; // REVENDA, FINAL
     private $nomeParceiro;
+    private $qtdRevenda;
 
     private $erro;
 
@@ -36,6 +37,7 @@ class ParceirosModel extends MainModel
         $this->idParceiro = isset($_POST["idParceiro"]) ? $_POST["idParceiro"] : null;
         $this->tipo = isset($_POST["tipo"]) ? $_POST["tipo"] : null;
         $this->nomeParceiro = isset($_POST["nomeParceiro"]) ? $_POST["nomeParceiro"] : null;
+        $this->qtdRevenda = isset($_POST["qtdRevenda"]) ? $_POST["qtdRevenda"] : null;
 
         if (empty($this->idEmpresas) || !is_array($this->idEmpresas)) {
             $this->erro .= "<br>Selecione pelo menos uma empresa válida para o parceiro.";
@@ -61,6 +63,7 @@ class ParceirosModel extends MainModel
         $this->form_data['tipo'] = $this->tipo;
         $this->form_data['idParceiro'] = $this->idParceiro;
         $this->form_data['nomeParceiro'] = $this->nomeParceiro;
+        $this->form_data['qtdRevenda'] = $this->qtdRevenda;
 
         if (empty($this->form_data)) {
             return;
@@ -78,9 +81,19 @@ class ParceirosModel extends MainModel
     public function getParceiro($idParceiro = null)
     {
         if (is_numeric($idParceiro) > 0) {
-            $query = $this->db->query('SELECT `tblParceiro`.*, `parceiroPai`.`nomeParceiro` AS `nome_parceiro_pai`, 
+            $query = $this->db->query('WITH revendasFeitas AS (
+                    SELECT 
+                        `idParceiro`, 
+                        COUNT(`id`) AS `qtdRevendas`,
+                        `id`
+                    FROM `tblParceiro`
+                    WHERE `idParceiro` != `id`
+                    GROUP BY `idParceiro`
+                )
+            SELECT `tblParceiro`.*, `parceiroPai`.`nomeParceiro` AS `nome_parceiro_pai`, COALESCE(revendasFeitas.`qtdRevendas`, 0) AS `qtdRevendas`,
             GROUP_CONCAT(`tblEmpresa`.`razaoSocial` SEPARATOR ", ") AS `empresas`, `tblTokens`.`token`
             FROM `tblParceiro` 
+            LEFT JOIN revendasFeitas ON `tblParceiro`.`id` = revendasFeitas.`idParceiro`
             LEFT JOIN `tblTokens` ON `tblTokens`.`idParceiro` = `tblParceiro`.`id`
             LEFT JOIN `tblParceiro` AS `parceiroPai` ON `tblParceiro`.`idParceiro` = `parceiroPai`.`id`
             LEFT JOIN `relParceiroEmpresa` ON `tblParceiro`.`id` = `relParceiroEmpresa`.`idParceiro`
@@ -163,15 +176,29 @@ class ParceirosModel extends MainModel
 
         $groupby = "GROUP BY `tblParceiro`.`id`";
 
-        $sql = "SELECT `tblParceiro`.*, `tblTokens`.`token`,
-                   `parceiroPai`.`nomeParceiro` AS `nome_parceiro_pai`, 
-                   GROUP_CONCAT(`tblEmpresa`.`razaoSocial` SEPARATOR ', ') AS `empresas`
-            FROM `tblParceiro` 
-            LEFT JOIN `tblTokens` ON `tblTokens`.`idParceiro` = `tblParceiro`.`id`
-            LEFT JOIN `tblParceiro` AS `parceiroPai` ON `tblParceiro`.`idParceiro` = `parceiroPai`.`id`
-            LEFT JOIN `relParceiroEmpresa` ON `tblParceiro`.`id` = `relParceiroEmpresa`.`idParceiro`
-            LEFT JOIN `tblEmpresa` ON `relParceiroEmpresa`.`idEmpresa` = `tblEmpresa`.`id`
-        
+        $sql = " WITH revendasFeitas AS (
+                    SELECT 
+                        `idParceiro`, 
+                        COUNT(`id`) AS `qtdRevendas`,
+                        `id`
+                    FROM `tblParceiro`
+                    WHERE `idParceiro` != `id`
+                    GROUP BY `idParceiro`
+                )
+                SELECT 
+                    `tblParceiro`.*, 
+                    `tblTokens`.`token`, 
+                    COALESCE(revendasFeitas.`qtdRevendas`, 0) AS `qtdRevendas`, -- Substitui NULL por 0
+                    `parceiroPai`.`nomeParceiro` AS `nome_parceiro_pai`, 
+                    GROUP_CONCAT(`tblEmpresa`.`razaoSocial` SEPARATOR ', ') AS `empresas`
+                FROM `tblParceiro`
+                LEFT JOIN revendasFeitas ON `tblParceiro`.`id` = revendasFeitas.`idParceiro`
+                LEFT JOIN `tblTokens` ON `tblTokens`.`idParceiro` = `tblParceiro`.`id`
+                LEFT JOIN `tblParceiro` AS `parceiroPai` ON `tblParceiro`.`idParceiro` = `parceiroPai`.`id`
+                LEFT JOIN `relParceiroEmpresa` ON `tblParceiro`.`id` = `relParceiroEmpresa`.`idParceiro`
+                LEFT JOIN `tblEmpresa` ON `relParceiroEmpresa`.`idEmpresa` = `tblEmpresa`.`id`
+                GROUP BY `tblParceiro`.`id`;
+
         $where $groupby $orderby $limit";
 
         $query = $this->db->query($sql);
@@ -195,7 +222,8 @@ class ParceirosModel extends MainModel
             'nomeParceiro' => chk_array($this->form_data, 'nomeParceiro'),
             'idParceiro' => chk_array($this->form_data, 'idParceiro'),
             'tipo' => chk_array($this->form_data, 'tipo'),
-            'observacoes' => chk_array($this->form_data, 'observacoes')
+            'observacoes' => chk_array($this->form_data, 'observacoes'),
+            'qtdRevenda' => chk_array($this->form_data, 'qtdRevenda'),
         ));
 
         $this->id = $this->db->lastInsertId();
@@ -257,7 +285,8 @@ class ParceirosModel extends MainModel
             'idParceiro' => isset($_POST['idParceiro']) ? trim($_POST['idParceiro']) : null,
             'tipo' => isset($_POST['tipo']) ? trim($_POST['tipo']) : null,
             'observacoes' => isset($_POST['observacoes']) ? trim($_POST['observacoes']) : null,
-            'dataEdicao' => date('Y-m-d H:i:s')
+            'dataEdicao' => date('Y-m-d H:i:s'),
+            'qtdRevenda' => isset($_POST['qtdRevenda']) ? trim($_POST['qtdRevenda']) : null,
         );
 
         // Atualize o registro no banco de dados
@@ -332,9 +361,11 @@ class ParceirosModel extends MainModel
             return [];
         }
 
-        $query = $this->db->query("SELECT idParceiro FROM relParceiroEmpresa WHERE idEmpresa = ?", [$idEmpresa]);
+        $query = $this->db->query("SELECT idParceiro FROM relParceiroEmpresa WHERE idEmpresa = ?", array($idEmpresa));
 
-        return array_column($query->fetchAll(), 'idEmpresa');
+        $idParceiro = $query->fetch();
+
+        return $idParceiro['idParceiro'];
     }
 
     public function desbloquearParceiro()
