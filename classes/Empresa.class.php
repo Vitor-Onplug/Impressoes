@@ -7,6 +7,7 @@ class Empresa
     private $razaoSocial;
     private $nomeFantasia;
     private $observacoes;
+    private $idUsuarioCriacao;
     private $avatar;
 
     private $erro;
@@ -16,11 +17,12 @@ class Empresa
         $this->db = $db;
     }
 
-    public function validarEmpresa($razaoSocial = null, $nomeFantasia = null, $observacoes = null)
+    public function validarEmpresa($razaoSocial = null, $nomeFantasia = null, $observacoes = null, $idUsuarioCriacao = null)
     {
         $this->razaoSocial = $razaoSocial;
         $this->nomeFantasia = $nomeFantasia;
         $this->observacoes = $observacoes;
+        $this->idUsuarioCriacao = $idUsuarioCriacao;
 
         if (empty($this->razaoSocial)) {
             $this->erro .= "<br>Preencha a razão social.";
@@ -39,6 +41,7 @@ class Empresa
             }
         }
 
+
         if (!empty($this->erro)) {
             return $this->erro;
         }
@@ -46,7 +49,7 @@ class Empresa
         return true;
     }
 
-    public function adicionarEmpresa($razaoSocial = null, $nomeFantasia = null, $observacoes = null)
+    public function adicionarEmpresa($razaoSocial = null, $nomeFantasia = null, $observacoes = null, $idUsuarioCriacao = null)
     {
         if (empty($razaoSocial) && empty($nomeFantasia)) {
             return false;
@@ -55,8 +58,14 @@ class Empresa
         $this->razaoSocial = $razaoSocial;
         $this->nomeFantasia = $nomeFantasia;
         $this->observacoes = $observacoes;
+        $this->idUsuarioCriacao = $idUsuarioCriacao;
 
-        $query = $this->db->insert('tblEmpresa', array('razaoSocial' => $this->razaoSocial, 'nomeFantasia' => $this->nomeFantasia, 'observacoes' => $this->observacoes));
+        if (empty($this->idUsuarioCriacao)) {
+            $this->idUsuarioCriacao = $_SESSION['userdata']['id'];
+        }
+
+
+        $query = $this->db->insert('tblEmpresa', array('razaoSocial' => $this->razaoSocial, 'nomeFantasia' => $this->nomeFantasia, 'observacoes' => $this->observacoes, 'idUsuarioCriacao' => $this->idUsuarioCriacao));
 
         if (!$query) {
             return false;

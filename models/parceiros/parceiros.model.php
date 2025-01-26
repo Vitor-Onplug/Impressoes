@@ -81,25 +81,26 @@ class ParceirosModel extends MainModel
     public function getParceiro($idParceiro = null)
     {
         if (is_numeric($idParceiro) > 0) {
-            $query = $this->db->query('WITH revendasFeitas AS (
-                    SELECT 
-                        `idParceiro`, 
-                        COUNT(`id`) AS `qtdRevendas`,
-                        `id`
-                    FROM `tblParceiro`
-                    WHERE `idParceiro` != `id`
-                    GROUP BY `idParceiro`
-                )
-            SELECT `tblParceiro`.*, `parceiroPai`.`nomeParceiro` AS `nome_parceiro_pai`, COALESCE(revendasFeitas.`qtdRevendas`, 0) AS `qtdRevendas`,
-            GROUP_CONCAT(`tblEmpresa`.`razaoSocial` SEPARATOR ", ") AS `empresas`, `tblTokens`.`token`
+            $query = $this->db->query(' WITH revendasFeitas AS (
+                                            SELECT 
+                                                `idParceiro`, 
+                                                COUNT(`id`) AS `qtdRevendas`,
+                                                `id`
+                                            FROM `tblParceiro`
+                                            WHERE `idParceiro` != `id`
+                                            GROUP BY `idParceiro`
+                                        )
+
+            SELECT `tblParceiro`.*, `parceiroPai`.`nomeParceiro` AS `nome_parceiro_pai`, 
+                    COALESCE(revendasFeitas.`qtdRevendas`, 0) AS `qtdRevendas`,
+                    GROUP_CONCAT(`tblEmpresa`.`razaoSocial` SEPARATOR ", ") AS `empresas`, `tblTokens`.`token`
             FROM `tblParceiro` 
             LEFT JOIN revendasFeitas ON `tblParceiro`.`id` = revendasFeitas.`idParceiro`
             LEFT JOIN `tblTokens` ON `tblTokens`.`idParceiro` = `tblParceiro`.`id`
             LEFT JOIN `tblParceiro` AS `parceiroPai` ON `tblParceiro`.`idParceiro` = `parceiroPai`.`id`
             LEFT JOIN `relParceiroEmpresa` ON `tblParceiro`.`id` = `relParceiroEmpresa`.`idParceiro`
             LEFT JOIN `tblEmpresa` ON `relParceiroEmpresa`.`idEmpresa` = `tblEmpresa`.`id`
-            WHERE `tblTokens`.`idEmpresa` iS NULL
-            AND `tblParceiro`.`id` = ?', array($idParceiro));
+            WHERE `tblParceiro`.`id` = ?', array($idParceiro));
         } else {
             return;
         }
@@ -115,6 +116,40 @@ class ParceirosModel extends MainModel
         }
 
         return $registro;
+    }
+
+    public function parceiroTemRevendasDisponiveis($idParceiro)
+    {
+        $query = $this->db->query('WITH revendasFeitas AS (
+                                            SELECT 
+                                                `idParceiro`, 
+                                                COUNT(`id`) AS `qtdRevendas`,
+                                                `id`
+                                            FROM `tblParceiro`
+                                            WHERE `idParceiro` != `id`
+                                            GROUP BY `idParceiro`
+                                        )
+
+                                    SELECT COALESCE(revendasFeitas.`qtdRevendas`, 0) AS `qtdRevendas`, `tblParceiro`.`qtdRevenda`
+                                    FROM `tblParceiro`
+                                    LEFT JOIN revendasFeitas ON `tblParceiro`.`id` = revendasFeitas.`idParceiro`
+                                    WHERE `tblParceiro`.`idParceiro` = ?', array($idParceiro));
+
+        if (!$query) {
+            return false;
+        }
+
+        $registro = $query->fetch();
+
+        if (empty($registro)) {
+            return false;
+        }
+
+        if ($registro['qtdRevendas'] >= $registro['qtdRevenda']) {
+            return false;
+        }
+
+        return true;
     }
 
     public function getIdParceiroUsuario($idUsuario)
@@ -140,7 +175,7 @@ class ParceirosModel extends MainModel
     public function getParceiros($filtros = null)
     {
 
-        $where = " WHERE `tblTokens`.`idEmpresa` iS NULL ";
+        $where = " WHERE 1=1 ";
         $limit = null;
         $groupby = null;
 
@@ -190,6 +225,7 @@ class ParceirosModel extends MainModel
                     `tblTokens`.`token`, 
                     COALESCE(revendasFeitas.`qtdRevendas`, 0) AS `qtdRevendas`, -- Substitui NULL por 0
                     `parceiroPai`.`nomeParceiro` AS `nome_parceiro_pai`, 
+                    `parceiroPai`.`id` AS `idParceiroPai`,
                     GROUP_CONCAT(`tblEmpresa`.`razaoSocial` SEPARATOR ', ') AS `empresas`
                 FROM `tblParceiro`
                 LEFT JOIN revendasFeitas ON `tblParceiro`.`id` = revendasFeitas.`idParceiro`
@@ -408,19 +444,5 @@ class ParceirosModel extends MainModel
 
             return;
         }
-    }
-
-    public function validarTokenParceiro($token)
-    {
-        $query = $this->db->query('SELECT `idParceiro` 
-                                    FROM `tblTokens` 
-                                    WHERE `token` = ?', array($token));
-        $registro = $query->fetch();
-        // Verifica se há registros retornados
-        if ($query->rowCount() > 0) {
-            return $registro;
-        }
-
-        return false; // Token inválido
     }
 }

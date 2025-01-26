@@ -323,16 +323,16 @@ class DashboardModel extends MainModel
 
 		// Total de Usuários Ativos
 		$queryTotalUsuarios = $this->db->query("
-        SELECT COUNT(DISTINCT nomeUsuario) as total 
-        FROM tblImpressoes 
-        WHERE idParceiro IN ($parceirosIds)");
+		 SELECT COUNT(*) as total
+		 FROM tblUsuario
+		 WHERE tblUsuario.status = 'T' AND tblUsuario.idEmpresa = ?", [$idEmpresa]);
 		$totalUsuarios = $queryTotalUsuarios->fetch()['total'];
 
 		// Total de Impressoras
 		$queryTotalImpressoras = $this->db->query("
-        SELECT COUNT(DISTINCT nomeImpressora) as total 
-        FROM tblImpressoes 
-        WHERE idParceiro IN ($parceirosIds)");
+		 SELECT COUNT(*) as total
+		 FROM tblImpressora
+		 WHERE tblImpressora.status = 'T' AND tblImpressora.idEmpresa = ?", [$idEmpresa]);
 		$totalImpressoras = $queryTotalImpressoras->fetch()['total'];
 
 		// Impressões no Mês Atual
@@ -356,15 +356,16 @@ class DashboardModel extends MainModel
         LIMIT 10");
 		$usuarios = $queryUsuarios->fetchAll(PDO::FETCH_ASSOC);
 
-		// Impressões por Impressora
+		// Impressões por Impressora (ajustado para usar tabela tblImpressora)
 		$queryImpressoras = $this->db->query("
-        SELECT 
-            nomeImpressora, 
-            COUNT(*) as total 
-        FROM tblImpressoes 
-        WHERE idParceiro IN ($parceirosIds)
-        GROUP BY nomeImpressora 
-        ORDER BY total DESC");
+		 SELECT 
+			 tblImpressora.nome,
+			 COUNT(tblImpressoes.id) as total
+		 FROM tblImpressora
+		 LEFT JOIN tblImpressoes ON tblImpressoes.idImpressora = tblImpressora.id
+		 WHERE tblImpressora.idEmpresa = ?
+		 GROUP BY tblImpressora.nome
+		 ORDER BY total DESC", [$idEmpresa]);
 		$impressoras = $queryImpressoras->fetchAll(PDO::FETCH_ASSOC);
 
 		// Calcula percentuais para os gráficos

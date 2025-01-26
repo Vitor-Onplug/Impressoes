@@ -11,6 +11,8 @@ class EmpresasModel extends MainModel
 	private $observacoes;
 	private $avatar;
 	private $token;
+	private $accessToken;
+	private $idUsuarioCriacao;
 
 	private $erro;
 
@@ -42,14 +44,18 @@ class EmpresasModel extends MainModel
 		$this->observacoes = isset($_POST["observacoes"]) ? $_POST["observacoes"] : null;
 		$this->avatar = isset($_POST["diretorioAvatar"]) ? $_POST["diretorioAvatar"] : null;
 		$this->token = isset($_POST["token"]) ? $_POST["token"] : null;
+		$this->accessToken = isset($_POST["accessToken"]) ? $_POST["accessToken"] : null;
+		$this->idUsuarioCriacao = isset($_POST["idUsuarioCriacao"]) ? $_POST["idUsuarioCriacao"] : null;
 
-		$validaEmpresa = $this->ClasseEmpresa->validarEmpresa($this->razaoSocial, $this->nomeFantasia, $this->observacoes);
+		$validaEmpresa = $this->ClasseEmpresa->validarEmpresa($this->razaoSocial, $this->nomeFantasia, $this->observacoes, $this->idUsuarioCriacao);
 
 		$this->form_data['razaoSocial'] = trim($this->razaoSocial);
 		$this->form_data['nomeFantasia'] = trim($this->nomeFantasia);
 		$this->form_data['observacoes'] = trim($this->observacoes);
 		$this->form_data['avatar'] = trim($this->avatar);
 		$this->form_data['token'] = trim($this->token);
+		$this->form_data['accessToken'] = trim($this->accessToken);
+		$this->form_data['idUsuarioCriacao'] = trim($this->idUsuarioCriacao);
 
 		if ($validaEmpresa != 1) {
 			$this->erro .= $validaEmpresa;
@@ -92,11 +98,19 @@ class EmpresasModel extends MainModel
 				'tblTokens',
 				array(
 					'idEmpresa' => $this->id,
-					'token' => chk_array($this->form_data, 'token')
+					'token' => chk_array($this->form_data, 'token'),
+					'type' => 'CADASTRO'
 				)
 			);
 
-
+			$this->db->insert(
+				'tblTokens',
+				array(
+					'idEmpresa' => $this->id,
+					'token' => chk_array($this->form_data, 'accessToken'),
+					'type' => 'ACESSO'
+				)
+			);
 
 			$this->form_msg = $this->controller->Messages->success('Registro editado com sucesso. Aguarde, você será redirecionado...');
 			$this->form_msg .= '<meta http-equiv="refresh" content="2; url=' . HOME_URI . '/empresas/index/editar/' . chk_array($this->parametros, 1) . '">';
@@ -107,7 +121,7 @@ class EmpresasModel extends MainModel
 
 	private function adicionarEmpresa()
 	{
-		$insereEmpresa = $this->ClasseEmpresa->adicionarEmpresa(chk_array($this->form_data, 'razaoSocial'), chk_array($this->form_data, 'nomeFantasia'), chk_array($this->form_data, 'observacoes'));
+		$insereEmpresa = $this->ClasseEmpresa->adicionarEmpresa(chk_array($this->form_data, 'razaoSocial'), chk_array($this->form_data, 'nomeFantasia'), chk_array($this->form_data, 'observacoes'), chk_array($this->form_data, 'idUsuarioCriacao'));
 		$this->id = $this->db->lastInsertId();
 
 		$destinoAvatar = "midia/avatar/" .  date("Y") . "/" . date("m") . "/" . date("d") . "/" . $this->id;
@@ -122,7 +136,17 @@ class EmpresasModel extends MainModel
 				'tblTokens',
 				array(
 					'idEmpresa' => $this->id,
-					'token' => chk_array($this->form_data, 'token')
+					'token' => chk_array($this->form_data, 'token'),
+					'type' => 'CADASTRO'
+				)
+			);
+
+			$this->db->insert(
+				'tblTokens',
+				array(
+					'idEmpresa' => $this->id,
+					'token' => chk_array($this->form_data, 'accessToken'),
+					'type' => 'ACESSO'
 				)
 			);
 
@@ -179,34 +203,64 @@ class EmpresasModel extends MainModel
 
 	public function getAvatar($id = null, $tn = false)
 	{
-		if (is_numeric($id) && $id > 0) {
-			$registro = $this->ClasseEmpresa->getEmpresa($id);
-		} else {
-			return;
-		}
+		try {
+			// Validar ID
+			if (!is_numeric($id) || $id <= 0) {
+				return "midia/empresas/noPictureProfile.png";
+			}
 
-		$dataHoraCriacao = explode(" ", $registro["dataCriacao"]);
-		$dataCriacao = explode("-", $dataHoraCriacao[0]);
+			// Como já estamos no modelo pessoa, podemos usar direto
+			$this->getEmpresa($id);
 
-		$diretorio = "midia/avatar/" . $dataCriacao[0] . "/" . $dataCriacao[1] . "/" . $dataCriacao[2] . "/" . $registro["id"];
+			if (!isset($this->form_data['razaoSocial'])) {
+				return "midia/empresas/noPictureProfile.png";
+			}
 
-		if (file_exists($diretorio)) {
-			$lerDiretorio = opendir($diretorio);
-			$imagens = array();
-			while ($imagens[] = readdir($lerDiretorio));
-			closedir($lerDiretorio);
-			foreach ($imagens as $imagem) {
-				if (preg_match("/\.(jpg|jpeg|gif|png){1}$/i", strtolower($imagem))) {
-					if ($tn) {
-						return $diretorio . "/tn/" . $imagem;
-					} else {
-						return $diretorio . "/" . $imagem;
-					}
+			$diretorio = UP_ABSPATH . '/empresas/' . $id . '-' . $this->form_data['razaoSocial'] . '/imagens/avatar';
+
+			if (!is_dir($diretorio)) {
+				return "midia/empresas/noPictureProfile.png";
+			}
+
+			// Lista todos os arquivos do diretório
+			$arquivos = scandir($diretorio);
+			$arquivos = array_diff($arquivos, array('.', '..'));
+
+			// Filtrar apenas imagens
+			$imagens = array_filter($arquivos, function ($arquivo) {
+				return preg_match("/\.(jpg|jpeg|gif|png)$/i", strtolower($arquivo));
+			});
+
+			if (empty($imagens)) {
+				return "midia/empresas/noPictureProfile.png";
+			}
+
+			// Ordena os arquivos pelo nome em ordem decrescente (baseado no timestamp no nome)
+			usort($imagens, function ($a, $b) {
+				return strcmp($b, $a); // Ordenação reversa para pegar o mais recente
+			});
+
+			// Pega a imagem mais recente
+			$imagemRecente = array_shift($imagens);
+
+			// Retorna o caminho conforme solicitado (normal ou thumbnail)
+			if ($tn) {
+				$caminhoThumb = $diretorio . '/thumb/' . $imagemRecente;
+				if (file_exists($caminhoThumb)) {
+					return str_replace(ABSPATH, '', $caminhoThumb);
 				}
 			}
-		}
 
-		return "views/standards/images/no-img.jpg";
+			$responseImage = str_replace(ABSPATH, '', $diretorio . '/' . $imagemRecente);
+
+			if(!file_exists(ABSPATH . $responseImage)){
+				return "midia/empresas/noPictureProfile.png";
+			}
+
+			return $responseImage;
+		} catch (Exception $e) {
+			return "midia/empresas/noPictureProfile.png";
+		}
 	}
 
 	public function bloquearEmpresa()
@@ -265,7 +319,7 @@ class EmpresasModel extends MainModel
             AND `tblEmpresa`.`status` = 1
             ORDER BY `tblEmpresa`.`razaoSocial`
             LIMIT 30
-        ', array('%' . $termo . '%', '%' . $termo . '%' , '%' . $termo . '%'));
+        ', array('%' . $termo . '%', '%' . $termo . '%', '%' . $termo . '%'));
 
 			if (!$query) {
 				return array('items' => array(), 'total_count' => 0);
@@ -291,4 +345,21 @@ class EmpresasModel extends MainModel
 
 		return array('items' => array(), 'total_count' => 0);
 	}
+
+	public function validarTokenEmpresa($token, $tipo)
+	{
+		$query = $this->db->query('SELECT `idEmpresa` 
+                                    FROM `tblTokens` 
+                                    WHERE `token` = ?
+									AND `type` = ?
+									', array($token, $tipo));
+		$registro = $query->fetch();
+		// Verifica se há registros retornados
+		if ($query->rowCount() > 0) {
+			return $registro['idEmpresa']; // Token válido
+		}
+
+		return false; // Token inválido
+	}
+
 }

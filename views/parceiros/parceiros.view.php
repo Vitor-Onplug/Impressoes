@@ -22,6 +22,7 @@ $idEmpresa = $_SESSION['userdata']['idEmpresa'];
 $idParceiroUsuario = $modelo->getParceiroEmpresa($idEmpresa);
 $parceiro = $modelo->getParceiro($idParceiroUsuario);
 $parceiros = $modelo->getParceiros($filtros);
+$parceiroTemRevendasDisponiveis = $modelo->parceiroTemRevendasDisponiveis($idParceiroUsuario);
 
 ?>
 
@@ -93,22 +94,46 @@ $parceiros = $modelo->getParceiros($filtros);
                     <tbody>
                         <?php foreach ($parceiros as $dados): ?>
                             <tr>
-                                <td><?php echo $dados['nomeParceiro']; ?></td>
-                                <td><?php echo $dados['empresas']; ?></td>
                                 <td>
-                                    <?php
-                                    echo !empty($dados['nome_parceiro_pai'])
-                                        ? $dados['nome_parceiro_pai']
-                                        : '<span class="text-muted">Nenhum</span>';
-                                    ?>
+                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/ver/<?php echo encryptId($dados['id']); ?>">
+                                        <?php echo $dados['nomeParceiro']; ?>
+                                    </a>
                                 </td>
-                                <td><?php echo ucfirst(strtolower($dados['tipo'])); ?></td>
-                                <td><?php echo $dados['qtdRevendas'] . ' / ' . $dados['qtdRevenda']; ?></td>
-                                <td><?php echo date('d/m/Y', strtotime($dados['dataCriacao'])); ?></td>
+                                <td>
+                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/ver/<?php echo encryptId($dados['id']); ?>">
+                                        <?php echo $dados['empresas']; ?>
+                                    </a>
+                                </td>
+                                <td>
+
+                                    <?php
+                                    if (!empty($dados['nome_parceiro_pai'])) {
+                                        echo '<a href="' . HOME_URI . '/parceiros/index/ver/' . encryptId($dados['idParceiroPai']) . '"> ' . $dados['nome_parceiro_pai'] . '</a>';
+                                    } else {
+                                        echo '<span class="text-muted">Nenhum</span>';
+                                    }
+                                    ?>
+
+                                </td>
+                                <td>
+                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/ver/<?php echo encryptId($dados['id']); ?>">
+                                        <?php echo ucfirst(strtolower($dados['tipo'])); ?>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/ver/<?php echo encryptId($dados['id']); ?>">
+                                        <?php echo $dados['qtdRevendas'] . ' / ' . $dados['qtdRevenda']; ?>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/ver/<?php echo encryptId($dados['id']); ?>">
+                                        <?php echo date('d/m/Y', strtotime($dados['dataCriacao'])); ?>
+                                    </a>
+                                </td>
                                 <td>
                                     <a href="<?php echo HOME_URI; ?>/parceiros/index/editar/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Editar"><i class="far fa-edit"></i></a>&nbsp;
-                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/vincular/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Ver  Dados Parceiro"><i class="fas fa-link"></i></a>&nbsp;
-                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/ver/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Ver"><i class="far fa-eye"></i></a>&nbsp;
+                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/vincular/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Visualizar"><i class="fas fa-link"></i></a>&nbsp;
+                                    <a href="<?php echo HOME_URI; ?>/parceiros/index/ver/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Perfil"><i class="far fa-eye"></i></a>&nbsp;
                                     <?php if ($dados['status'] == 'T'): ?>
                                         <a href="<?php echo HOME_URI; ?>/parceiros/index/bloquear/<?php echo encryptId($dados['id']); ?>" class="icon-tab" title="Bloquear"><i class="fas fa-unlock text-green"></i></a>
                                     <?php else: ?>
@@ -124,9 +149,9 @@ $parceiros = $modelo->getParceiros($filtros);
             </div>
             <div class="card-footer">
                 <a href="<?php echo HOME_URI; ?>/parceiros/index/adicionar"
-                    <?php echo ($parceiro['qtdRevendas'] >= $parceiro['qtdRevenda']) ? 'class="disabled"' : ''; ?>>
+                    <?php echo (!$parceiroTemRevendasDisponiveis) ? 'class="disabled"' : ''; ?>>
                     <button type="button" class="btn btn-danger btn-lg"
-                        <?php echo ($parceiro['qtdRevendas'] >= $parceiro['qtdRevenda']) ? 'disabled' : ''; ?>>Adicionar Parceiro</button>
+                        <?php echo (!$parceiroTemRevendasDisponiveis) ? 'disabled' : ''; ?>>Adicionar Parceiro</button>
                 </a>
             </div>
 

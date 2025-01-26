@@ -111,34 +111,19 @@ $empresasSelecionadas = $modelo->getEmpresasDoParceiro($parceiro['id'] ?? null);
                                 <label for="qtdRevenda">Qtd. Revendas</label>
                                 <input type="number" class="form-control" id="qtdRevenda" name="qtdRevenda" placeholder="Digite a quantidade"
                                     value="<?php echo htmlspecialchars(chk_array($parceiro, 'qtdRevenda') ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                    min="0" max="9999">
+                                    min="0" max="9999"
+                                    <?php echo $disabled; ?>
+                                    >
                             </div>
                         </div>
 
                         <div class="col-md-12">
-                            <!-- Empresas Associadas -->
 
                             <!-- Empresas Associadas -->
                             <div class="form-group">
                                 <label for="idEmpresas">Empresas</label>
                                 <select class="form-control select2" id="idEmpresas" name="idEmpresas[]" multiple required
-                                    data-minimum-input-length="3"
-                                    data-ajax--url="<?php echo HOME_URI; ?>/apiinterna/buscarEmpresas"
-                                    data-ajax--delay="300"
-                                    data-ajax--cache="true"
-
-                                    <?php echo !$edicao ? 'disabled' : ''; ?>>
-                                    <?php
-                                    // Load only pre-selected companies initially
-                                    if (!empty($empresasSelecionadas)) {
-                                        foreach ($empresas as $empresa) {
-                                            if (in_array($empresa['id'], $empresasSelecionadas)) {
-                                                echo "<option value='{$empresa['id']}' selected>{$empresa['razaoSocial']}</option>";
-                                            }
-                                        }
-                                    }
-                                    ?>
-                                </select>
+                                <?php echo $disabled; ?>></select>
                             </div>
 
                             <!-- Campo oculto para o ID do parceiro -->
@@ -174,7 +159,7 @@ $empresasSelecionadas = $modelo->getEmpresasDoParceiro($parceiro['id'] ?? null);
                 </div>
 
                 <div class="card-footer">
-                    <button type="submit" class="btn btn-success"><?php echo chk_array($this->parametros, 0) == 'editar' ? 'Salvar Alterações' : 'Adicionar Parceiro'; ?></button>
+                <?php if (!$disabled) { ?> <button type="submit" class="btn btn-success"><?php echo chk_array($this->parametros, 0) == 'editar' ? 'Salvar Alterações' : 'Adicionar Parceiro' ?></button> <?php } ?>
                     <a href="<?php echo HOME_URI; ?>/parceiros" class="btn btn-secondary">Cancelar</a>
                 </div>
             </form>
@@ -183,13 +168,15 @@ $empresasSelecionadas = $modelo->getEmpresasDoParceiro($parceiro['id'] ?? null);
 </div>
 
 <script>
-    // Se o tipo de parceiro for 'Revenda', exibir o campo de quantidade de revendas
     $(document).ready(function() {
-        if ($(this).val() === 'REVENDA') {
+        // Verificação inicial do valor selecionado
+        if ($('#tipo').val() === 'REVENDA') {
             $('#qtdRevenda').parent().show();
         } else {
             $('#qtdRevenda').parent().hide();
         }
+
+        // Event listener para mudanças
         $('#tipo').change(function() {
             if ($(this).val() === 'REVENDA') {
                 $('#qtdRevenda').parent().show();
@@ -202,73 +189,60 @@ $empresasSelecionadas = $modelo->getEmpresasDoParceiro($parceiro['id'] ?? null);
 
 <script>
     $(document).ready(function() {
-        // Inicializa o Select2 com configuração refinada
+        const empresasDisponiveis = <?php echo json_encode($empresas); ?>;
+        const empresasSelecionadas = <?php echo json_encode($empresasSelecionadas); ?>;
+
+        // Inicializa o Select2
         $('#idEmpresas').select2({
-            minimumInputLength: 3, // Mínimo de caracteres para iniciar a busca
-            allowClear: true, // Permitir limpar a seleção
-            ajax: {
-                url: '<?php echo HOME_URI; ?>/apiinterna/buscarEmpresas', // URL da API
+            placeholder: "Digite para pesquisar empresas...",
+            minimumInputLength: 3,
+            allowClear: true,
+        });
+
+        // Adiciona as opções pré-selecionadas
+        if (empresasDisponiveis && empresasDisponiveis.length > 0) {
+            empresasDisponiveis.forEach(function(empresa) {
+                const opcao = new Option(empresa.razaoSocial, empresa.id, false, false);
+                $('#idEmpresas').append(opcao);
+            });
+        }
+
+        // Seleciona as empresas que devem estar selecionadas
+        if (empresasSelecionadas && empresasSelecionadas.length > 0) {
+            empresasSelecionadas.forEach(function(empresaId) {
+                $('#idEmpresas').val(empresaId).trigger('change');
+            });
+        }
+
+        // Função de busca
+        function fazerBusca(searchTerm) {
+            $.ajax({
+                url: '<?php echo HOME_URI; ?>/api/buscarEmpresas',
                 type: 'GET',
                 dataType: 'json',
-                delay: 300, // Atraso antes de enviar a requisição
-                data: function(params) {
-                    return {
-                        term: params.term // Termo de busca enviado para a API
-                    };
-                },
-                processResults: function(data) {
-                    console.log("Dados retornados pela API:", data); // Log para depuração
-                    if (data && data.items) {
-                        return {
-                            results: data.items.map(function(item) {
-                                return {
-                                    id: item.id,
-                                    text: item.razaoSocial // Exibe a razão social
-                                };
-                            })
-                        };
+                data: { term: searchTerm },
+                success: function(response) {
+                    if (response && response.items) {
+                        response.items.forEach(function(item) {
+                            if (!$('#idEmpresas option[value="' + item.id + '"]').length) {
+                                const newOption = new Option(item.razaoSocial, item.id, false, false);
+                                $('#idEmpresas').append(newOption);
+                            }
+                        });
                     }
-                    return {
-                        results: []
-                    }; // Caso não haja resultados
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    console.error("Erro na requisição AJAX:", textStatus, errorThrown);
                 }
-            },
-            language: {
-                inputTooShort: function() {
-                    return "Digite pelo menos 3 caracteres para buscar...";
-                },
-                noResults: function() {
-                    return "Nenhuma empresa encontrada.";
-                },
-                searching: function() {
-                    return "Buscando...";
-                }
-            }
-        });
-
-        // Verifica se o Select2 está funcionando corretamente
-        $('#idEmpresas').on('select2:select', function(e) {
-            console.log("Empresa selecionada:", e.params.data);
-        });
-
-        // Formatação dos resultados exibidos no dropdown
-        function formatCompany(company) {
-            if (!company.id) {
-                return company.text; // Placeholder
-            }
-            return $(
-                `<div class="d-flex flex-column">
-                <div class="font-weight-bold">${company.text}</div>
-            </div>`
-            );
+            });
         }
 
-        // Formatação do item selecionado
-        function formatCompanySelection(company) {
-            return company.text || company.id;
-        }
+        // Event listener para o campo de busca
+        $('#idEmpresas').on('select2:open', function() {
+            const searchInput = $('.select2-search__field');
+            searchInput.off('input').on('input', function() {
+                const searchTerm = $(this).val();
+                if (searchTerm.length >= 3) {
+                    fazerBusca(searchTerm);
+                }
+            });
+        });
     });
 </script>

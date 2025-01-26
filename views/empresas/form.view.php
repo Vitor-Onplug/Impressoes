@@ -78,7 +78,7 @@ if(chk_array($this->parametros, 0) == 'editar'){
                             <div class="inner">
                                 <h3>02</h3>
 
-                                <p>Funcionários</p>
+                                <p>Pessoas</p>
                             </div>
                             <div class="icon">
                                 <i class="fas fa-users"></i>

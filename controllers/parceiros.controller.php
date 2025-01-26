@@ -29,14 +29,16 @@ class ParceirosController extends MainController
             $this->title = SYS_NAME . ' - Editar Parceiro';
 
             $conteudo = ABSPATH . '/views/parceiros/frmParceiro.inc.view.php';
-        } elseif(chk_array($this->parametros, 0) == 'ver'){
+        } elseif (chk_array($this->parametros, 0) == 'ver') {
             $this->title = SYS_NAME . ' - Visualizar Parceiro';
 
             $conteudo = ABSPATH . '/views/parceiros/frmParceiro.inc.view.php';
-        }
-        elseif (chk_array($this->parametros, 0) == 'setParceiro') {
+        } elseif (chk_array($this->parametros, 0) == 'setParceiro') {
             $idPost = isset($_POST['idParceiro']) ? $_POST['idParceiro'] : 0;
             $hash = encryptId($idPost);
+            if ($idPost == 0) {
+                $hash = 0;
+            }
             if ($_SESSION['idParceiroHash'] != $hash) {
                 $_SESSION['idParceiroHash'] = $hash;
             }

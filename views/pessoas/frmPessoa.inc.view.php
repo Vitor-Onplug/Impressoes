@@ -2,6 +2,8 @@
 if (!defined('ABSPATH')) exit;
 
 $modelo->validarFormPessoa();
+
+$hash = chk_array($parametros, 1);
 ?>
 <?php require_once ABSPATH . '/views/pessoas/mini-perfil.inc.view.php'; ?>
 
@@ -101,7 +103,7 @@ $(function() {
     const isOwnProfile = '<?php echo $_SESSION['userdata']['id']; ?>' === '<?php echo $modelo->form_data['id']; ?>';
 
     $('#fileupload').fileupload({
-        url: '<?php echo HOME_URI; ?>/upload/pessoas/avatar/<?php echo encryptId($modelo->form_data['id']); ?>',
+        url: '<?php echo HOME_URI; ?>/upload/pessoas/avatar/<?php echo $hash; ?>',
         dataType: 'json',
         autoUpload: true,
         paramName: 'midia',
@@ -175,16 +177,16 @@ $(function() {
                     }
 
                      // Se for o próprio usuário, recarrega a página após 1.5 segundos
-					 if (isOwnProfile) {
+					//  if (isOwnProfile) {
                         setTimeout(function() {
                             window.location.reload();
                         }, 1500);
-                    } else {
-                        // Esconde os alertas após 5 segundos apenas se não for recarregar
-                        setTimeout(function() {
-                            $('.alert').fadeOut('slow');
-                        }, 5000);
-                    }
+                    // } else {
+                    //     // Esconde os alertas após 5 segundos apenas se não for recarregar
+                    //     setTimeout(function() {
+                    //         $('.alert').fadeOut('slow');
+                    //     }, 5000);
+                    // }
                 }
             }
         },

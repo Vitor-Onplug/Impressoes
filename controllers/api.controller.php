@@ -3,14 +3,22 @@ class ApiController extends MainController
 {
     public $login_required = true;
 
+    private $modeloImpressoes;
+    private $modeloEmpresas;
+    private $modeloParceiros;
+    private $parametros;
+
+    public function __construct()
+    {
+        $this->modeloImpressoes = $this->load_model('impressoes/impressoes');
+        $this->modeloEmpresas = $this->load_model('empresas/empresas');
+        $this->modeloParceiros = $this->load_model('parceiros/parceiros');
+        $this->parametros = $parametros = (func_num_args() >= 1) ? func_get_arg(0) : array();
+    }
+
     public function impressao()
     {
-        $parametros = (func_num_args() >= 1) ? func_get_arg(0) : array();
-
-        $modelo = $this->load_model('impressoes/impressoes');
-        $modeloParceiros = $this->load_model('parceiros/parceiros');
-
-        if (chk_array($this->parametros, 0) == 'cadastro') {
+        if (chk_array($this->parametros, 0) == 'cadastro') {;
             // Valida o método POST e o token
             try {
                 header('Content-Type: application/json; charset=utf-8');
@@ -22,11 +30,10 @@ class ApiController extends MainController
                     return;
                 }
 
+                $tokenValido = $this->modeloEmpresas->validarTokenParceiro($tokenRecebido, 'CADASTRO');
+                $idParceiro = $this->modeloParceiros->getParceiroEmpresa($tokenValido);
 
-
-                $tokenValido = $modeloParceiros->validarTokenParceiro($tokenRecebido);
-
-                if (!isset($tokenValido['id'])) {
+                if (!isset($tokenValido)) {
                     echo json_encode(['success' => false, 'message' => 'Token inválido.']);
                     exit;
                 }
@@ -62,7 +69,8 @@ class ApiController extends MainController
                                 "Duplex" => $linha[11],
                                 "Monocromatico" => $linha[12],
                                 "Tamanho" => $linha[13],
-                                "idParceiro" => $tokenValido['id']
+                                "idEmpresa" => $tokenValido,
+                                "idParceiro" => $idParceiro
                             ];
                         }
                         fclose($handle);
@@ -70,7 +78,7 @@ class ApiController extends MainController
                         //echo json_encode([$dadosRecebidos]);
                         // exit;
                         // Envia os dados para o modelo
-                        $response = $modelo->salvarDadosImpressao($dadosRecebidos);
+                        $response = $this->modeloImpressoes->salvarDadosImpressao($dadosRecebidos);
                         echo json_encode($response);
                     } else {
                         echo json_encode(['success' => false, 'message' => 'Erro ao abrir o arquivo CSV.']);
@@ -82,7 +90,7 @@ class ApiController extends MainController
                 echo json_encode(['success' => false, 'message' => 'Erro ao processar o arquivo CSV. ' . $e->getMessage()]);
             }
         } else if (chk_array($this->parametros, 0) == 'exportar') {
-            $response = $modelo->exportarImpressao();
+            $response = $this->modeloImpressoes->exportarImpressao();
             echo json_encode($response);
         } else {
             echo json_encode(['success' => false, 'message' => 'Rota não encontrada.']);
@@ -116,8 +124,7 @@ class ApiController extends MainController
                 return;
             }
 
-            $modeloParceiros = $this->load_model('parceiros/parceiros');
-            $tokenValido = $modeloParceiros->validarTokenParceiro($tokenRecebido);
+            $tokenValido = $this->modeloEmpresas->validarTokenParceiro($tokenRecebido, 'ACESSO');
 
             if ($tokenValido === false) {
                 echo json_encode(['success' => false, 'message' => 'Token inválido.']);
@@ -160,13 +167,13 @@ class ApiController extends MainController
             WHERE idParceiro = ? 
             AND dataCadastro BETWEEN ? AND ?
             ORDER BY dataCadastro ASC",
-                [$tokenValido['idParceiro'], $dataInicio, $dataFim]
+                [$tokenValido, $dataInicio, $dataFim]
             );
 
             if (!$query) {
                 echo json_encode([
                     'success' => false,
-                    'message' => 'Erro ao consultar dados: ' . $this->db->error()
+                    'message' => 'Erro ao consultar dados: ' . $this->db
                 ]);
                 return;
             }
@@ -180,7 +187,7 @@ class ApiController extends MainController
                 'message' => 'Dados recuperados com sucesso',
                 'countRegistro' => $totalRegistros,
                 'data' => $dados,
-               
+
             ]);
         } catch (Exception $e) {
             echo json_encode([

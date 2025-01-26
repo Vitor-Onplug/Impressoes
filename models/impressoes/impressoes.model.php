@@ -27,13 +27,15 @@ class ImpressoesModel extends MainModel
             $where .= " OR (`tblImpressoes`.`nomeImpressora` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
             $where .= " OR (`tblImpressoes`.`nomeArquivo` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
             $where .= " OR (`tblImpressoes`.`cliente` LIKE '%" . _otimizaBusca($filtros['q']) . "%')";
-
         }
 
-        if(!empty($filtros["idParceiro"])) {
+        if (!empty($filtros["idParceiro"])) {
             $where .= " AND `tblImpressoes`.`idParceiro` = " . $filtros["idParceiro"];
         }
 
+        if (!empty($filtros["idEmpresa"])) {
+            $where .= " AND `tblImpressoes`.`idEmpresa` = " . $filtros["idEmpresa"];
+        }
 
         $orderby = "ORDER BY `tblImpressoes`.`dataCadastro` DESC";
 
@@ -122,6 +124,7 @@ class ImpressoesModel extends MainModel
             $tamanho = trim($linha['Tamanho'] ?? '');
             $linguagem = trim($linha['Linguagem'] ?? '');
             $idParceiro = trim($linha['idParceiro'] ?? '');
+            $idEmpresa = $this->userdata['idEmpresa'];
 
             $descricao = $linha['Descricao'] ?? '';
             $conteudo = $linha['Conteudo'] ?? '';
@@ -137,25 +140,35 @@ class ImpressoesModel extends MainModel
             }
 
             $impressora = $queryImpressora->fetch();
-            $idImpressora = $impressora['id'] ?? null;
+            if ($impressora) {
+                $idImpressora = $impressora['id'] ?? null;
+            } else {
+                // Se não encontrou a impressora, insere no banco
+                $queryInsertImpressora = $this->db->insert('tblImpressora', array(
+                    'nome' => $nomeImpressora,
+                    'idEmpresa' => $idEmpresa
+                ));
 
-            $usuarioLowerParts = explode(' ', $nomeUsuario);
-            $primeiroNome = $usuarioLowerParts[0] ?? null;
-
-            if ($primeiroNome) {
-                $queryUsuario = $this->db->query("SELECT tblUsuario.id FROM tblUsuario 
-                                              INNER JOIN tblPessoa ON tblUsuario.idPessoa = tblPessoa.id
-                                              WHERE nome LIKE ?", ["%{$primeiroNome}%"]);
-
-                if (!$queryUsuario) {
-                    $erros[] = "Erro na consulta do usuário: " . $this->db->error();
-                    $sucesso = false;
-                    continue;
-                }
-
-                $usuario = $queryUsuario->fetch();
-                $idUsuario = $usuario['id'] ?? null;
+                $idImpressora = $this->db->lastInsertId();
             }
+
+            // $usuarioLowerParts = explode(' ', $nomeUsuario);
+            // $primeiroNome = $usuarioLowerParts[0] ?? null;
+
+            // if ($primeiroNome) {
+            //     $queryUsuario = $this->db->query("SELECT tblUsuario.id FROM tblUsuario 
+            //                                   INNER JOIN tblPessoa ON tblUsuario.idPessoa = tblPessoa.id
+            //                                   WHERE nome LIKE ?", ["%{$primeiroNome}%"]);
+
+            //     if (!$queryUsuario) {
+            //         $erros[] = "Erro na consulta do usuário: " . $this->db->error();
+            //         $sucesso = false;
+            //         continue;
+            //     }
+
+            //     $usuario = $queryUsuario->fetch();
+            //     $idUsuario = $usuario['id'] ?? null;
+            // }
 
             // Verifica se todos os campos obrigatórios estão preenchidos
             if (empty($dataHora) || empty($nomeUsuario) || empty($nomeImpressora)) {
@@ -210,7 +223,8 @@ class ImpressoesModel extends MainModel
                 'custoPorFolha' => $custoPorFolha,
                 'custoTotal' => $custoTotal,
                 'linguagem' => $linguagem,
-                'idParceiro' => $idParceiro
+                'idParceiro' => $idParceiro,
+                'idEmpresa' => $idEmpresa
             ));
         }
 

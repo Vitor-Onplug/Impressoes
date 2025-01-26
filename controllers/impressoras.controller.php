@@ -18,6 +18,7 @@ class ImpressorasController extends MainController
         $parametros = (func_num_args() >= 1) ? func_get_arg(0) : array();
 
         $modelo = $this->load_model('impressoras/impressoras');
+        $modeloMarcas = $this->load_model('impressoras/marcas');
 
         if (chk_array($this->parametros, 0) == 'adicionar') {
             $this->title = SYS_NAME . ' - Adicionar Impressora';
@@ -31,24 +32,26 @@ class ImpressorasController extends MainController
             $conteudo = ABSPATH . '/views/impressoras/adicionar_editar.view.php';
 
             require ABSPATH . '/views/painel/painel.view.php';
-        } 
-        
-        elseif (chk_array($this->parametros, 0) == 'adicionarMarca') {
+        } elseif (chk_array($this->parametros, 0) == 'marcas') {
+
+
+            $this->title = SYS_NAME . ' - Marcas';
+
+            $conteudo = ABSPATH . '/views/impressoras/marcas.view.php';
+
+
+            require ABSPATH . '/views/painel/painel.view.php';
+        } elseif (chk_array($this->parametros, 0) == 'adicionarMarca') {
             $modelo->adicionarMarca();
-        } 
-        elseif (chk_array($this->parametros, 0) == 'adicionarDepartamento') {
+        } elseif (chk_array($this->parametros, 0) == 'adicionarDepartamento') {
             $modelo->adicionarDepartamento();
-        } 
-        elseif (chk_array($this->parametros, 0) == 'getMarcas') {
+        } elseif (chk_array($this->parametros, 0) == 'getMarcas') {
             $response = $modelo->getMarcas();
             echo json_encode($response);
-        }
-        elseif (chk_array($this->parametros, 0) == 'getDepartamentos') {
+        } elseif (chk_array($this->parametros, 0) == 'getDepartamentos') {
             $response = $modelo->getDepartamentos();
             echo json_encode($response);
-        }
-        
-        else {
+        } else {
             $conteudo = ABSPATH . '/views/impressoras/impressoras.view.php';
 
             require ABSPATH . '/views/painel/painel.view.php';

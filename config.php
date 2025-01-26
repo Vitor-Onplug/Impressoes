@@ -25,15 +25,15 @@ define('MAILER_Port', '587');
 
 define('HOME_URI', 'https://impressoes.teste.me');
 
-define('HOSTNAME', 'localhost');
-define('DB_NAME', 'printManager');
+define('HOSTNAME', 'database-1.c9i0goe680ba.sa-east-1.rds.amazonaws.com');
+define('DB_NAME', 'onplug_printManager');
 define('DB_USER', 'crede');
 define('DB_PASSWORD', 'crede@123');
 define('DB_CHARSET', 'utf8');
 
 define('HASH_KEY', 'crede@123');
 
-define('DEBUG', true);
+define('DEBUG', false);
 
 require_once ABSPATH . '/loader.php';
 ?>

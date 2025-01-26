@@ -73,18 +73,23 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 			<!-- SELECT PARA SELECIONAR UM PARCEIRO -->
 			<?php
 			$idParceiroHash = isset($_SESSION['idParceiroHash']) ? $_SESSION['idParceiroHash'] : null;
+			$idParceiro = 0;
+			$parceiroTemRevendasDisponiveis = false;
+			$modeloParceiro = $this->load_model('parceiros/parceiros');
 			if ($idParceiroHash !== null) {
 				$idParceiro = decryptHash($idParceiroHash);
-				$modeloParceiro = $this->load_model('parceiros/parceiros');
+				$parceiroTemRevendasDisponiveis = $modeloParceiro->parceiroTemRevendasDisponiveis($idParceiro);
 				$parceiros = $modeloParceiro->getParceiros();
 			?>
 				<div class="form-inline mx-2">
 					<label class="mr-2" for="selectParceiro">Parceiro Atual:</label>
 					<select class="form-control select2-search" id="selectParceiro" name="selectParceiro" style="width: 250px;">
+						<option value="0">Nenhum parceiro selecionado</option>
 						<?php foreach ($parceiros as $parceiro) : ?>
 							<option value="<?= $parceiro['id'] ?>" <?= $parceiro['id'] == $idParceiro ? 'selected' : '' ?>>
 								<?= $parceiro['nomeParceiro'] ?>
 							</option>
+
 						<?php endforeach; ?>
 					</select>
 				</div>
@@ -92,9 +97,8 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 				<div class="form-inline mx-2">
 					<label class="mr-2" for="selectParceiro">Selecione um Parceiro:</label>
 					<select class="form-control select2-search" id="selectParceiro" name="selectParceiro" style="width: 250px;">
-						<option value="" disabled selected>Nenhum parceiro selecionado</option>
+						<option value="0" selected>Nenhum parceiro selecionado</option>
 						<?php
-						$modeloParceiro = $this->load_model('parceiros/parceiros');
 						$parceiros = $modeloParceiro->getParceiros();
 						foreach ($parceiros as $parceiro) : ?>
 							<option value="<?= $parceiro['id'] ?>">
@@ -167,9 +171,8 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 						</li>
 
 						<?php
-						$modeloParceiro = $this->load_model('parceiros/parceiros');
 						$idParceiroHash = isset($_SESSION['idParceiroHash']) ? $_SESSION['idParceiroHash'] : null;
-						if ($idParceiroHash !== null) {
+						if ($idParceiroHash !== null && $idParceiroHash != 0) {
 							$idParceiro = decryptHash($idParceiroHash);
 							$parceiro = $modeloParceiro->getParceiro($idParceiro);
 						?>
@@ -200,6 +203,13 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 										</a></li>
 									<?php // } 
 									?>
+
+									<li class="nav-item pl-2"><a href="<?php echo HOME_URI; ?>/impressoras/index/marcas" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'impressoras' && (isset($activePage[2]) && $activePage[2] == 'marcas')) {
+																																				echo 'active';
+																																			} ?>"><i class="fa-solid fa-tachograph-digital nav-icon"></i>
+											<p>Marcas</p>
+										</a></li>
+
 								</ul>
 							</li>
 							<!-- Fim Impressoras -->
@@ -292,14 +302,14 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 																															} ?>"><i class="far fa-calendar nav-icon"></i>
 											<p>Parceiros</p>
 										</a></li>
-									<?php //if($this->check_permissions('empresa-adicionar', $this->userdata['modulo'])){
+									<?php if ($parceiroTemRevendasDisponiveis) {
 									?>
-									<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/parceiros/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros' && $activePage[2] == 'adicionar') {
-																																				echo 'active';
-																																			} ?>"><i class="far fa-calendar-plus nav-icon"></i>
-											<p>Adicionar</p>
-										</a></li>
-									<?php //} 
+										<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/parceiros/index/adicionar" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'parceiros' && $activePage[2] == 'adicionar') {
+																																					echo 'active';
+																																				} ?>"><i class="far fa-calendar-plus nav-icon"></i>
+												<p>Adicionar</p>
+											</a></li>
+									<?php }
 									?>
 								</ul>
 							</li>
@@ -333,6 +343,12 @@ $painelUsuarios = $this->load_model('usuarios/usuarios');
 										</a></li>
 									<?php //} 
 									?>
+
+									<li class="nav-item pl-2 "><a href="<?php echo HOME_URI; ?>/empresas/index/departamentos" class="nav-link <?php if (isset($activePage[0]) && $activePage[0] == 'empresas' && $activePage[2] == 'departamentos') {
+																																				echo 'active';
+																																			} ?>"><i class="fa-solid fa-layer-group nav-icon"></i>
+											<p>Departamentos</p>
+										</a></li>
 								</ul>
 							</li>
 						<?php }

@@ -155,20 +155,20 @@ class PessoasModel extends MainModel
 		try {
 			// Validar ID
 			if (!is_numeric($id) || $id <= 0) {
-				return "views/standards/images/no-img.jpg";
+				return "midia/pessoas/noPictureProfile.png";
 			}
 
 			// Como já estamos no modelo pessoa, podemos usar direto
 			$this->getPessoa($id);
 
 			if (!isset($this->form_data['nome'])) {
-				return "views/standards/images/no-img.jpg";
+				return "midia/pessoas/noPictureProfile.png";
 			}
 
 			$diretorio = UP_ABSPATH . '/pessoas/' . $id . '-' . $this->form_data['nome'] . '/imagens/avatar';
 
 			if (!is_dir($diretorio)) {
-				return "views/standards/images/no-img.jpg";
+				return "midia/pessoas/noPictureProfile.png";
 			}
 
 			// Lista todos os arquivos do diretório
@@ -181,7 +181,7 @@ class PessoasModel extends MainModel
 			});
 
 			if (empty($imagens)) {
-				return "views/standards/images/no-img.jpg";
+				return "midia/pessoas/noPictureProfile.png";
 			}
 
 			// Ordena os arquivos pelo nome em ordem decrescente (baseado no timestamp no nome)
@@ -200,9 +200,15 @@ class PessoasModel extends MainModel
 				}
 			}
 
-			return str_replace(ABSPATH, '', $diretorio . '/' . $imagemRecente);
+			$responseImage = str_replace(ABSPATH, '', $diretorio . '/' . $imagemRecente);
+
+			if(!file_exists(ABSPATH . $responseImage)){
+				return "midia/pessoas/noPictureProfile.png";
+			}
+
+			return $responseImage;
 		} catch (Exception $e) {
-			return "views/standards/images/no-img.jpg";
+			return "midia/pessoas/noPictureProfile.png";
 		}
 	}
 

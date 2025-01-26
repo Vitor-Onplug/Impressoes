@@ -107,7 +107,7 @@ if (empty($anos) || $idParceiro === 0) {
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header bg-light">
-                            <h3 class="card-title">IMPRESSÕES POR GRAYSCALE</h3>
+                            <h3 class="card-title">IMPRESSÕES EM ESCALA DE CINZA</h3>
                         </div>
                         <div class="card-body">
                             <canvas id="graficoGrayscale"></canvas>
@@ -119,7 +119,7 @@ if (empty($anos) || $idParceiro === 0) {
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-header bg-light">
-                            <h3 class="card-title">IMPRESSÕES POR DUPLEX</h3>
+                            <h3 class="card-title">IMPRESSÕES FRENTE E VERSO</h3>
                         </div>
                         <div class="card-body">
                             <canvas id="graficoDuplex"></canvas>
@@ -217,7 +217,7 @@ if (empty($anos) || $idParceiro === 0) {
         new Chart(ctxGrayscale, {
             type: 'doughnut',
             data: {
-                labels: ['GRAYSCALE', 'NOT GRAYSCALE'],
+                labels: ['ESCALA DE CINZA', 'COLORIDO'],
                 datasets: [{
                     data: <?php echo json_encode($dadosDashboard['grayscale']); ?>,
                     backgroundColor: ['#0088FE', '#00C49F']
@@ -239,7 +239,7 @@ if (empty($anos) || $idParceiro === 0) {
         new Chart(ctxDuplex, {
             type: 'doughnut',
             data: {
-                labels: ['DUPLEX', 'NOT DUPLEX'],
+                labels: ['IMPRESSÃO FRENTE E VERSO', 'IMPRESSÃO SIMPLES'],
                 datasets: [{
                     data: <?php echo json_encode($dadosDashboard['duplex']); ?>,
                     backgroundColor: ['#0088FE', '#00C49F']

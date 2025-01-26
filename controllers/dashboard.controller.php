@@ -23,7 +23,10 @@ class DashBoardController extends MainController
 
 		$modeloUsuarios = $this->load_model('usuarios/usuarios');
 
-		if (!isset($_SESSION['idParceiroHash']) && $this->check_permissions('ADMINISTRADOR', $this->userdata['modulo'])) {
+		if (
+			(!isset($_SESSION['idParceiroHash']) ||
+			$_SESSION['idParceiroHash'] == 0) &&
+			$this->check_permissions('ADMINISTRADOR', $this->userdata['modulo'])) {
 			$conteudo = ABSPATH . '/views/dashboard/dashboard.view.php';
 		} else {
 			$conteudo = ABSPATH . '/views/dashboard/dashboardParceiro.view.php';
